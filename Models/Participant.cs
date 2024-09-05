@@ -1,6 +1,6 @@
 namespace Quaze.Models;
 
-public class QuizUser
+public class Participant
 {
     public string Name { get; set; }
 
