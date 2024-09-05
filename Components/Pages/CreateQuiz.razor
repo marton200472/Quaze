@@ -1,5 +1,36 @@
-﻿<h3>Create your own Quiz!</h3>
+﻿@page "/createquiz"
+
+<h3>Create your own Quiz!</h3>
+
+<button>Add question</button>
+
+@for (int i = 0; i < quiz.Questions.Count; i++)
+{
+    <p>Title @quiz.Questions[i].Title</p>
+    <p>Quiestion Type</p>
+    <select name="type" @onchange="x=>ChangeType(i,x)">
+        <option value="mc" selected>Multiple Choice</option>
+        <option value="ow">Open-Word</option>
+    </select>
+}
+
+<!--Create Quiestion Attributes:-->
+
 
 @code {
+    private Quiz quiz;
 
+    private void ChangeType(int index, ChangeEventArgs e)
+    {
+        if (quiz.Questions[index] is MultipleChoiceQuestion && e.Value.ToString() == "ow")
+        {
+            // Render type specific inputs
+            StateHasChanged();
+        }
+        else if (quiz.Questions[index] is OpenWordQuestion && e.Value.ToString() == "mc")
+        {
+            // Render type specific inputs
+            StateHasChanged();
+        }
+    }
 }
