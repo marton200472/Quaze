@@ -1,0 +1,23 @@
+﻿@page "/"
+@inject Quaze.TimerService tService
+@rendermode InteractiveServer
+
+<PageTitle>Home</PageTitle>
+
+<h1>Quaze</h1>
+
+Welcome to your new app.
+
+<p>Seconds elapsed: @sec</p>
+
+@code {
+    private int sec=0;
+
+    protected override void OnInitialized() {
+        sec = tService.count;
+        tService.TimerElapsed += (e,s) =>{
+            sec=s;
+            InvokeAsync(StateHasChanged);
+        };
+    }
+}
