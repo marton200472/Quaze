@@ -1,4 +1,3 @@
-
 using Quaze.Models;
 
 namespace Quaze;

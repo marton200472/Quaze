@@ -1,4 +1,4 @@
-namespace Quaze.Models.Quiz;
+namespace Quaze.Models;
 
 public class MultipleChoiceQuestion : IQuestion
 {
