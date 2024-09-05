@@ -9,7 +9,7 @@ public class Session
     public List<Participant> Participants { get; set; } = new();
 
 
-    public int TimeLeft { get; private set; }
+    public int TimeLeft { get; private set; } = 0;
     public int QuestionIndex { get; private set; } = 0;
     public State CurrentState { get; private set; }
 
@@ -48,7 +48,7 @@ public class Session
                 TimerEnabled = false;
                 break;
             case State.QuestionEnd:
-                if (quiz.Questions.Length>QuestionIndex)
+                if (quiz.Questions.Count>QuestionIndex)
                 {
                     QuestionIndex++;
                     TimeLeft = quiz.Questions[QuestionIndex].TimeLimit;
