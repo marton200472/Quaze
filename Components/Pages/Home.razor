@@ -15,8 +15,6 @@
     private int sec=0;
 
     protected override void OnInitialized() {
-        tService.TimerElapsed += (e,s) =>{
-            InvokeAsync(StateHasChanged);
-        };
+        
     }
 }
