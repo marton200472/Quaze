@@ -1,20 +1,26 @@
 ﻿@page "/"
-@inject Quaze.SessionService tService
-@rendermode InteractiveServer
+@inject SessionService sessionSrv
+@inject NavigationManager nav
 
 <PageTitle>Home</PageTitle>
 
 <h1>Quaze</h1>
 
-<button class="">Create Quiz</button>
-<button>Join Quiz</button>
+<form @onsubmit="OnSubmit">
+    <label>Join a Quiz:</label>
+    <input type="text" placeholder="Quiz ID" @bind-value="QuizId"/>
+    <button type="submit">Join</button>
+</form>
 
-<p>Seconds elapsed: @sec</p>
 
 @code {
-    private int sec=0;
+    [SupplyParameterFromForm]
+    private string QuizId {get; set;} = "";
 
-    protected override void OnInitialized() {
-        
+    private void OnSubmit() {
+        if(true || sessionSrv.Sessions.Any(x=>x.Id == QuizId)) {
+            nav.NavigateTo($"/quiz/{QuizId}");
+        }
     }
 }
+    
