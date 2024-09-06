@@ -14,8 +14,15 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSingleton<SessionService>();
 builder.Services.AddSingleton<IHostedService>(p => p.GetRequiredService<SessionService>());
 
+string connStr;
+if (builder.Environment.IsDevelopment())
+{
+    connStr = builder.Configuration.GetConnectionString("Local")!;
+}
+else {
+    connStr = builder.Configuration.GetConnectionString("Default")!;
+}
 
-string connStr = builder.Configuration.GetConnectionString("Default")!;
 builder.Services.AddDbContext<QuazeDbContext>(c=>{
     c.UseMySql(connStr, ServerVersion.AutoDetect(connStr));
 });
