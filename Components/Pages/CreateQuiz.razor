@@ -1,7 +1,7 @@
 ﻿@page "/createquiz"
 
 @inject NavigationManager navManager
-@inject QuazeDbContext db
+@inject Microsoft.EntityFrameworkCore.IDbContextFactory<QuazeDbContext> dbFactory
 @rendermode InteractiveServer
 
 <div class="container">
@@ -14,31 +14,68 @@
         <div class="form-group w-50 m-auto">
             <div class="form-group mb-5">
                 @* Kellenek majd Labelek Bootstrapből*@
-                <InputText @bind-Value="quiz.Title" @onfocusout="SaveQuiz" class="form-control form-control-lg mb-2" placeholder="Enter title..." />
-                <InputTextArea @bind-Value="quiz.Description" @onfocusout="SaveQuiz" class="form-control" />
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="quiz.Title" @onfocusout="SaveQuiz" class="form-control form-control-lg mb-2" placeholder="Enter title..." id="fltlblforquiztitle" />
+                    <label for="fltlblforquiztitle">Title</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <InputTextArea @bind-Value="quiz.Description" @onfocusout="SaveQuiz" class="form-control mb-4" id="fltlblforquizdesc" />
+                    <label for="fltlblforquizdesc">Description</label>
+                </div>
             </div>
             @foreach (var question in quiz.Questions)
             {
                 <div class="container w-75 mb-4">
-                    <InputText @bind-Value="question.Title" @onfocusout="SaveQuiz" class="form-control mb-2" />
-                    <InputTextArea @bind-Value="question.Description" @onfocusout="SaveQuiz" class="form-control" />
-                    <InputNumber @bind-Value="question.TimeLimit" @onfocusout="SaveQuiz" class="form-control" />
+                    <div class="form-floating mb-3">
+                        <InputText @bind-Value="question.Title" @onfocusout="SaveQuiz" class="form-control mb-2" id="fltlblforquestiontitle" />
+                        <label for="fltlblforquestiontitle">Title</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <InputTextArea @bind-Value="question.Description" @onfocusout="SaveQuiz" class="form-control mb-2" id="fltlblforquestiondesc" />
+                        <label for="fltlblforquestiondesc">Description</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <InputNumber @bind-Value="question.TimeLimit" @onfocusout="SaveQuiz" class="form-control mb-2" id="lofazs2" />
+                        <label for="lofazs2">Time in seconds</label>
+                    </div>
                     @if (question.QuestionType == Question.Type.Choice)
                     {
-                        <InputSelect class="form-select" @bind-Value="question.QuestionType">
-                            <option value="@Question.Type.Choice" selected>Choice</option>
-                            <option value="@Question.Type.Open">Choice</option>
-                        </InputSelect>
-                        for (int i = 0; i < question.Choices.Count; i++)
+                        <div class="form-floating mb-3">
+                            <InputSelect @bind-Value="question.QuestionType" class="form-select mb-2" id="lofazs3">
+                                <option value="@Question.Type.Choice" selected>Choice</option>
+                                <option value="@Question.Type.Open">Open-Word</option>
+                            </InputSelect>
+                            <label for="lofazs3">Type</label>
+                        </div>
+                        foreach (var choice in question.Choices)
                         {
-                            <InputCheckbox @bind-Value="question.AnswerIndexes[i]" @onfocusout="SaveQuiz" class="form-check" />
-                            <InputText @bind-Value="question.Choices[i]" @onfocusout="SaveQuiz" class="form-control mb-1" />
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col">
+                                        <InputCheckbox @bind-Value="choice.Valid" @onfocusout="SaveQuiz" class="form-check" />
+                                        <div class="form-floating mb-3">
+                                            <InputText @bind-Value="choice.Text" @onfocusout="SaveQuiz" class="form-control mb-2" id="lofazs" />
+                                            <label for="lofazs">Text</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         }
-                        <button @onclick="()=>AddChoice(quiz.Questions.IndexOf(question))" class="btn btn-primary"></button>
+                        <button @onclick="()=>AddChoice(question)" class="btn btn-primary mb-2">Add Choice</button>
                     }
                     else
                     {
-                        <InputText @bind-Value="question.Answer" @onfocusout="SaveQuiz" class="form-control mb-2" />
+                        <div class="form-floating mb-3">
+                            <InputSelect @bind-Value="question.QuestionType" class="form-select mb-2" id="lofazs3">
+                                <option value="@Question.Type.Choice">Choice</option>
+                                <option value="@Question.Type.Open" selected>Open-Word</option>
+                            </InputSelect>
+                            <label for="lofazs3">Type</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <InputText @bind-Value="question.Answer" @onfocusout="SaveQuiz" class="form-control mb-2" id="lofazs4" />
+                            <label for="lofazs4">Answer</label>
+                        </div>
                     }
                 </div>
             }
@@ -55,6 +92,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        using var db = await dbFactory.CreateDbContextAsync();
         if (QuizId is null)
         {
             quiz = new Models.Quiz();
@@ -67,24 +105,26 @@
         }
     }
 
-    private async void AddChoice(int qindex)
+    private async Task AddChoice(Question q)
     {
-        quiz.Questions[qindex].Choices.Add($"{quiz.Questions[qindex].Choices.Count + 1}. Choice");
-        quiz.Questions[qindex].AnswerIndexes.Add(false);
+        using var db = await dbFactory.CreateDbContextAsync();
+        q.Choices.Add(new Question.Choice() { Text = $"{q.Choices.Count + 1}. Choice", Valid = false });
         db.Update(quiz);
         await db.SaveChangesAsync();
     }
 
-    private async void AddQ()
+    private async Task AddQ()
     {
+        using var db = await dbFactory.CreateDbContextAsync();
         quiz.Questions.Add(new Question() { QuestionType = Question.Type.Choice });
         db.Update(quiz);
         await db.SaveChangesAsync();
     }
 
-    private void SaveQuiz()
+    private async Task SaveQuiz()
     {
+        using var db = await dbFactory.CreateDbContextAsync();
         db.Update(quiz);
-        db.SaveChanges();
+        await db.SaveChangesAsync();
     }
 }
