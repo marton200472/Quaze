@@ -1,4 +1,6 @@
 using System.Reflection.Metadata.Ecma335;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Quaze;
@@ -23,11 +25,19 @@ else {
     connStr = builder.Configuration.GetConnectionString("Default")!;
 }
 
-builder.Services.AddDbContext<QuazeDbContext>(c=>{
+/*builder.Services.AddDbContext<QuazeDbContext>(c=>{
+    c.UseMySql(connStr, ServerVersion.AutoDetect(connStr));
+});*/
+builder.Services.AddDbContextFactory<QuazeDbContext>(c=>{
     c.UseMySql(connStr, ServerVersion.AutoDetect(connStr));
 });
 
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
 
+builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddEntityFrameworkStores<QuazeDbContext>();
+
+builder.Services.AddCascadingAuthenticationState();
 
 var app = builder.Build();
 
@@ -39,7 +49,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
@@ -48,7 +59,14 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 //image endpoint
-app.MapGet("api/image/{id:guid}",([FromRoute] Guid id, [FromServices]QuazeDbContext db)=> id.ToString());
+app.MapGet("api/image/{id:guid}",async ([FromRoute] Guid id, [FromServices]QuazeDbContext db) => {
+    var image = await db.Images.FindAsync(id);
+    if (image is null)
+    {
+        return Results.NotFound();
+    }
+    return Results.File(image.Data);
+});
 
 using (IServiceScope scope = app.Services.CreateScope())
     {

@@ -1,5 +1,10 @@
 @page "/quiz/{quizId}"
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject SessionService sessionService
+@inject SignInManager<IdentityUser> signInManager
+@inject UserManager<IdentityUser> userManager
+@inject ProtectedSessionStorage sessionStorage
 @rendermode InteractiveServer
 
 @if(State==LocalState.Joining) {
@@ -11,11 +16,11 @@
 }
 
 @if(State == LocalState.NameSelect) {
-    <EditForm Enhance Model="LocalParticipant" FormName="ParticipantNameForm" OnSubmit="NameSubmitted">
+    <EditForm Enhance Model="LocalParticipant" FormName="ParticipantNameForm" >
         
 
         <InputText class="@(NameIsTaken?"border border-danger":"")" @bind-Value="LocalParticipant.Name" placeholder="Username for this quiz"/>
-        <button type="submit">Save</button>
+        <button type="button" @onclick="NameSubmitted">Save</button>
     </EditForm>
 }
 
@@ -35,18 +40,23 @@
 
     private Session? Session {get; set;}
 
-    [SupplyParameterFromForm]
-    private Participant? LocalParticipant {get;set;} = new();
+    private Participant LocalParticipant {get;set;} = new();
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
 
 
-    private void NameSubmitted() {
-        
+    private async Task NameSubmitted() {
+
         //check if name is available
         if(Session.Participants.Any(x=>x.Name == LocalParticipant.Name)) {
             NameIsTaken = true;
             return;
         }
-
+        //await signInManager.SignInWithClaimsAsync(new IdentityUser() {UserName = Session.Id+LocalParticipant.Name},false ,new System.Security.Claims.Claim[] {new(Session.Id, LocalParticipant.Name)});
+        Console.WriteLine(Session.Id + " " + LocalParticipant.Name);
+        await sessionStorage.SetAsync(Session.Id, LocalParticipant.Name);
+        Console.WriteLine("Signed in");
         Session.Participants.Add(LocalParticipant);
         Session.StartQuiz();
         State = LocalState.Active;
@@ -60,12 +70,19 @@
             return;
         }
         Session = session;
+        
+        var savedName = await sessionStorage.GetAsync<string>(Session.Id);
+        if(savedName.Success) {
+            var user = Session.Participants.FirstOrDefault(x=>x.Name == savedName.Value);
+            if(user is not null) {
+                LocalParticipant = user;
+                State = LocalState.Active;
+                return;
+            }
+        }
+
         State = LocalState.NameSelect;
     }
-
-
-
-
 
     enum LocalState {
         Joining, NotFound, NameSelect, Active, Disconnected
