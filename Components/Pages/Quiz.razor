@@ -58,7 +58,6 @@
         await sessionStorage.SetAsync(Session.Id, LocalParticipant.Name);
         Console.WriteLine("Signed in");
         Session.Participants.Add(LocalParticipant);
-        Session.StartQuiz();
         State = LocalState.Active;
     }
 
