@@ -9,6 +9,8 @@ public class Session
 {
     public string Id { get; private set; }
 
+    public string OwnerId { get; set; }
+
     public List<Participant> Participants { get; set; } = new();
 
 

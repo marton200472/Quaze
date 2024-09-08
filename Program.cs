@@ -35,7 +35,7 @@ builder.Services.AddDbContextFactory<QuazeDbContext>(c=>{
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
-builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddEntityFrameworkStores<QuazeDbContext>();
+builder.Services.AddIdentity<Quaze.Models.User,IdentityRole>().AddEntityFrameworkStores<QuazeDbContext>();
 
 builder.Services.AddCascadingAuthenticationState();
 

@@ -2,8 +2,8 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject SessionService sessionService
-@inject SignInManager<IdentityUser> signInManager
-@inject UserManager<IdentityUser> userManager
+@inject SignInManager<User> signInManager
+@inject UserManager<User> userManager
 @inject ProtectedSessionStorage sessionStorage
 @rendermode InteractiveServer
 
