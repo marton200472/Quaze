@@ -1,0 +1,43 @@
+@page "/admin/quiz/{sessionId}"
+@inject SessionService sessionService
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@attribute [Authorize]
+
+
+
+
+
+@code {
+    [Parameter]
+    public string sessionId {get;set;}
+    private Session? Session {get; set;}
+
+    private LocalState State {get;set;}
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
+
+    protected override async Task OnInitializedAsync() {
+        //try to join session
+        var authState = await authenticationState;
+
+        var session = sessionService.Sessions.FirstOrDefault(x=>x.Id == sessionId && x.OwnerId == authState.User.Claims.First(x=>x.Type == ClaimTypes.NameIdentifier).Value);
+        if(session is null) {
+            State = LocalState.Error;
+            return;
+        }
+        Session = session;
+        
+        
+
+        State = LocalState.Active;
+    }
+
+    enum LocalState {
+        Starting, Active, Error
+    }
+}
