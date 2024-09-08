@@ -6,8 +6,32 @@
 @using System.Security.Claims
 @attribute [Authorize]
 
+@if(State == LocalState.Error) {
+    <p>Error</p>
+}
 
+@if(State == LocalState.Active) {
+    <h1>@Session.Quiz.Title</h1>
+    @if(Session.State == SessionState.WaitStart) {
+        <h1>Session Id: @Session.Id</h1>
+        <button @onclick="Session.StartQuiz">Start Quiz</button>
+    }
 
+    @if(Session.State == SessionState.QuestionActive) {
+        var question = Session.CurrentQuestion;
+        <h2>@question.Title</h2>
+        <p>@question.Description</p>
+        <p>@TimeSpan.FromSeconds(SecondsRemaining).ToString()</p>
+    }
+
+    @if(Session.State == SessionState.QuestionEnd) {
+        <button @onclick="Session.NextQuestion">Next question</button>
+    }
+
+    @if(Session.State == SessionState.End) {
+        <p>Quiz has ended</p>
+    }
+}
 
 
 @code {
@@ -16,6 +40,8 @@
     private Session? Session {get; set;}
 
     private LocalState State {get;set;}
+
+    private int SecondsRemaining {get;set;}
 
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
@@ -31,10 +57,10 @@
             return;
         }
         Session = session;
-        
-        
-
         State = LocalState.Active;
+
+        Session.StateChanged += (sender, state) => {InvokeAsync(StateHasChanged);};
+        Session.TimerTick += (s, seconds) => {SecondsRemaining = seconds; InvokeAsync(StateHasChanged);};
     }
 
     enum LocalState {

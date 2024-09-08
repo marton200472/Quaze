@@ -1,0 +1,36 @@
+﻿@page "/quizlist"
+@attribute [StreamRendering]
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<QuazeDbContext> dbFactory
+@inject SignInManager<User> signinManager
+@inject UserManager<User> userManager
+
+@if(Quizzes is null) {
+    <p>Loading...</p>
+}
+else {
+    foreach(var q in Quizzes) {
+        <div></div>
+    }
+}
+
+
+@code {
+    private List<Models.Quiz>? Quizzes {get;set;}
+    
+    [CascadingParameter]
+    public Task<AuthenticationState>? authenticationState {get;set;}
+
+
+    protected override async Task OnInitializedAsync() {
+        var authState = await authenticationState;
+        
+
+        var userId = authState.User.Claims.First(x=>x.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value;
+        var user = await userManager.FindByIdAsync(userId);
+        using var db = await dbFactory.CreateDbContextAsync();
+        Quizzes = db.Quizes.Where(x=>x.Owner == user).ToList();
+    }
+}

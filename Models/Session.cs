@@ -18,6 +18,8 @@ public class Session
     public int QuestionIndex { get; private set; } = 0;
     public SessionState State { get; private set; }
 
+    public Question CurrentQuestion => Quiz.Questions[QuestionIndex];
+
     public event EventHandler<SessionState> StateChanged;
     public event EventHandler<int> TimerTick;
 
