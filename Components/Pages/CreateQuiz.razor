@@ -41,13 +41,13 @@
     [Parameter]
     public int? QuizId { get; set; }
 
-    private Quiz? quiz { get; set; }
+    private Models.Quiz? quiz { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         if (QuizId is null)
         {
-            quiz = new Quiz();
+            quiz = new Models.Quiz();
             db.Add(quiz);
             await db.SaveChangesAsync();
         }
