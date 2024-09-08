@@ -1,33 +1,86 @@
 ﻿@page "/createquiz"
 
-<div class="container-fluid">
-    <div class="form-group">
-        <input type="text" class="form-control" aria-describedby="extendTitle" placeholder="Enter Title...">
-        <small id="extendTitle" class="form-text text-muted">Title of your quiz.</small>
-    </div>
-    <div class="container">
-        <input placeholder="Title..."/>
-        <select>
-            <option id="mc" selected>Multiple choice</option>
-            <option id="ow">Open-word</option>
-        </select>
-    </div>
+@inject NavigationManager navManager
+@inject QuazeDbContext db
+@rendermode InteractiveServer
+
+<div class="container">
+    @if(quiz is null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <div class="form-group w-50 m-auto">
+            <div class="form-group mb-5">
+                <input class="form-control form-control-lg mb-2" id="quiztitle" type="text" placeholder="Enter Quiz Title...">
+                <textarea class="form-control" id="quizdesc" rows="3" placeholder="Description..."></textarea>
+            </div>
+
+            @foreach (var q in quiz.Questions)
+            {
+                <div class="form-group mb-4">
+                    <input @onfocusout="SaveQuiz" @bind-value="q.Title" class="form-control form-control mb-2" id="quiztitle" type="text" placeholder="Enter Title..." />
+                    <select class="form-select mb-2">
+                        <option id="mc">Multiple choice</option>
+                        <option id="ow">Open-word</option>
+                    </select>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                    </svg>
+                </div>
+            }
+            <button @onclick="AddQ" type="button" class="btn btn-primary mt-3">Add question</button>
+        </div>
+    }
 </div>
 
 @code {
-    // private Quiz quiz;
 
-    // private void ChangeType(int index, ChangeEventArgs e)
-    // {
-    //     if (quiz.Questions[index] is MultipleChoiceQuestion && e.Value.ToString() == "ow")
-    //     {
-    //         // Render type specific inputs
-    //         StateHasChanged();
-    //     }
-    //     else if (quiz.Questions[index] is OpenWordQuestion && e.Value.ToString() == "mc")
-    //     {
-    //         // Render type specific inputs
-    //         StateHasChanged();
-    //     }
-    // }
+    [Parameter]
+    public int? QuizId { get; set; }
+
+    private Quiz? quiz { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (QuizId is null)
+        {
+            quiz = new Quiz();
+            db.Add(quiz);
+            await db.SaveChangesAsync();
+        }
+        else
+        {
+            quiz = await db.Quizes.FindAsync(QuizId);
+        }
+    }
+
+    private async void AddQ()
+    {
+        quiz.Questions.Add(new MultipleChoiceQuestion());
+        db.Update(quiz);
+        await db.SaveChangesAsync();
+    }
+
+    private void SaveQuiz()
+    {
+        db.Update(quiz);
+        db.SaveChanges();
+    }
+
+    private void ChangeType(int index, ChangeEventArgs e)
+    {
+        if (quiz.Questions[index] is MultipleChoiceQuestion && e.Value.ToString() == "ow")
+        {
+            // Render type specific inputs
+            StateHasChanged();
+        }
+        else if (quiz.Questions[index] is OpenWordQuestion && e.Value.ToString() == "mc")
+        {
+            // Render type specific inputs
+            StateHasChanged();
+        }
+    }
 }
