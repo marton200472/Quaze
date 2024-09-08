@@ -1,0 +1,54 @@
+@inject Microsoft.EntityFrameworkCore.IDbContextFactory<QuazeDbContext> dbFactory
+<div>
+    <label>Kép</label>
+    <InputFile OnChange="UploadFile"/>
+</div>
+
+@if(UploadInProgress) {
+    <p>Uploading</p>
+}
+
+@if(ImageGuid.HasValue) {
+    <img src="@($"/api/image/{ImageGuid.Value.ToString()}")"/>
+}
+    
+
+
+@code {
+    [Parameter]
+    public required Action<Guid> OnFileUploaded {get;set;}
+
+    private bool UploadInProgress {get;set;}
+
+    private Guid? ImageGuid {get;set;}
+
+    private async Task UploadFile(InputFileChangeEventArgs args) {
+        UploadInProgress = true;
+        StateHasChanged();
+        var db = await dbFactory.CreateDbContextAsync();
+        DbImage image = new();
+        
+        await Task.Delay(5000);
+        //10 MB
+        var stream = args.File.OpenReadStream(10*1024*1024);
+        var mem = new MemoryStream() {Capacity = (int)args.File.Size};
+        await stream.CopyToAsync(mem);
+        image.Data = mem.ToArray();
+        image.Id = Guid.NewGuid();
+        db.Images.Add(image);
+        await db.SaveChangesAsync();
+
+        await db.DisposeAsync();
+        await mem.DisposeAsync();
+        await stream.DisposeAsync();
+
+        await Task.Run(()=>OnFileUploaded?.Invoke(image.Id));
+
+        ImageGuid = image.Id;
+
+        UploadInProgress = false;
+        StateHasChanged();
+    }
+}
+
+
