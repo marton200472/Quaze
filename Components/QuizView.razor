@@ -1,0 +1,45 @@
+@rendermode InteractiveServer
+
+  
+@if(Session.State == SessionState.WaitStart) {
+    <p>Please wait for the administrator to start the quiz</p>
+}
+
+@if(Session.State == SessionState.QuestionActive) {
+    var question = Session.Quiz.Questions[Session.QuestionIndex];
+    
+    <h2>@question.Title</h2>
+    <p>@question.Description</p>
+    <p>@TimeSpan.FromSeconds(SecondsRemaining).ToString()</p>
+}
+
+@if(Session.State == SessionState.End) {
+    <p>Quiz has ended</p>
+}
+
+
+
+@code {
+    [Parameter]
+    public Session? Session {get;set;}
+    [Parameter]
+    public Participant? LocalParticipant {get;set;}
+
+    private int SecondsRemaining {get;set;} = 0;
+
+
+    protected override void OnParametersSet() {
+        SecondsRemaining = Session.TimeLeft;
+    }
+
+    protected override async Task OnInitializedAsync() {
+        Session.StateChanged += (sender, state) => {if(state == SessionState.QuestionEnd) Session.NextQuestion(); InvokeAsync(StateHasChanged);};
+        //StateHasChanged();
+        Session.TimerTick += (s, seconds) => {SecondsRemaining = seconds; InvokeAsync(StateHasChanged);};
+        
+    }
+
+    private void OnStateChanged(SessionState state) {
+
+    }
+}

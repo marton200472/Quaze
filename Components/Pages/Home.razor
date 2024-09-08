@@ -6,20 +6,28 @@
 
 <h1>Quaze</h1>
 
-<form @onsubmit="OnSubmit">
+<EditForm Model="this" OnValidSubmit="OnSubmit" FormName="JoinQuizForm">
     <label>Join a Quiz:</label>
-    <input type="text" placeholder="Quiz ID" @bind-value="QuizId"/>
+    <InputText class="@("form-control " + (DoesntExist?"border border-danger":""))" placeholder="Quiz ID" @bind-Value="QuizId"/>
+    @if(DoesntExist) {
+        <label class="text-danger">QUiz doesn't exist</label>
+    }
     <button type="submit">Join</button>
-</form>
+</EditForm>
 
 
 @code {
     [SupplyParameterFromForm]
     private string QuizId {get; set;} = "";
 
+    private bool DoesntExist = false;
+
     private void OnSubmit() {
         if(true || sessionSrv.Sessions.Any(x=>x.Id == QuizId)) {
             nav.NavigateTo($"/quiz/{QuizId}");
+        }
+        else {
+            DoesntExist = true;
         }
     }
 }

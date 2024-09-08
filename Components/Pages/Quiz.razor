@@ -1,0 +1,73 @@
+@page "/quiz/{quizId}"
+@inject SessionService sessionService
+@rendermode InteractiveServer
+
+@if(State==LocalState.Joining) {
+    <p>Joining...</p>
+}
+
+@if(State == LocalState.NotFound) {
+    <p>Quiz not found</p>
+}
+
+@if(State == LocalState.NameSelect) {
+    <EditForm Enhance Model="LocalParticipant" FormName="ParticipantNameForm" OnSubmit="NameSubmitted">
+        
+
+        <InputText class="@(NameIsTaken?"border border-danger":"")" @bind-Value="LocalParticipant.Name" placeholder="Username for this quiz"/>
+        <button type="submit">Save</button>
+    </EditForm>
+}
+
+@if(State == LocalState.Active) {
+    <QuizView Session="Session" LocalParticipant="LocalParticipant" />
+}
+
+
+
+@code {
+    [Parameter]
+    public string quizId {get;set;}
+
+    private LocalState State {get; set;} = LocalState.Joining;
+
+    private bool NameIsTaken {get;set;} = false;
+
+    private Session? Session {get; set;}
+
+    [SupplyParameterFromForm]
+    private Participant? LocalParticipant {get;set;} = new();
+
+
+    private void NameSubmitted() {
+        
+        //check if name is available
+        if(Session.Participants.Any(x=>x.Name == LocalParticipant.Name)) {
+            NameIsTaken = true;
+            return;
+        }
+
+        Session.Participants.Add(LocalParticipant);
+        Session.StartQuiz();
+        State = LocalState.Active;
+    }
+
+    protected override async Task OnInitializedAsync() {
+        //try to join session
+        var session = sessionService.Sessions.FirstOrDefault(x=>x.Id == quizId);
+        if(session is null) {
+            State = LocalState.NotFound;
+            return;
+        }
+        Session = session;
+        State = LocalState.NameSelect;
+    }
+
+
+
+
+
+    enum LocalState {
+        Joining, NotFound, NameSelect, Active, Disconnected
+    }
+}
