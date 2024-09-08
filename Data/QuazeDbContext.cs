@@ -18,6 +18,7 @@ public class QuazeDbContext : IdentityDbContext<IdentityUser>
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Question>().Property(x => x.Choices).HasConversion(x => Newtonsoft.Json.JsonConvert.SerializeObject(x), y => Newtonsoft.Json.JsonConvert.DeserializeObject<List<Question.Choice>>(y));
         base.OnModelCreating(modelBuilder);
     }
 }
