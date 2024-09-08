@@ -13,6 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+    builder.Services.AddRazorPages();
+    
+
 builder.Services.AddSingleton<SessionService>();
 builder.Services.AddSingleton<IHostedService>(p => p.GetRequiredService<SessionService>());
 
@@ -25,9 +28,9 @@ else {
     connStr = builder.Configuration.GetConnectionString("Default")!;
 }
 
-/*builder.Services.AddDbContext<QuazeDbContext>(c=>{
+builder.Services.AddDbContext<QuazeDbContext>(c=>{
     c.UseMySql(connStr, ServerVersion.AutoDetect(connStr));
-});*/
+});
 builder.Services.AddDbContextFactory<QuazeDbContext>(c=>{
     c.UseMySql(connStr, ServerVersion.AutoDetect(connStr));
 });
@@ -57,6 +60,9 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+    app.MapRazorPages();
+
 
 //image endpoint
 app.MapGet("api/image/{id:guid}",async ([FromRoute] Guid id, [FromServices]QuazeDbContext db) => {
