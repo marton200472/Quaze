@@ -25,14 +25,20 @@
                     <InputNumber @bind-Value="question.TimeLimit" @onfocusout="SaveQuiz" class="form-control" />
                     @if (question.QuestionType == Question.Type.Choice)
                     {
-                        foreach (var choice in question.Choices)
+                        <InputSelect class="form-select" @bind-Value="question.QuestionType">
+                            <option value="@Question.Type.Choice" selected>Choice</option>
+                            <option value="@Question.Type.Open">Choice</option>
+                        </InputSelect>
+                        for (int i = 0; i < question.Choices.Count; i++)
                         {
-                            //<InputCheckbox @bind-Value=""
+                            <InputCheckbox @bind-Value="question.AnswerIndexes[i]" @onfocusout="SaveQuiz" class="form-check" />
+                            <InputText @bind-Value="question.Choices[i]" @onfocusout="SaveQuiz" class="form-control mb-1" />
                         }
+                        <button @onclick="()=>AddChoice(quiz.Questions.IndexOf(question))" class="btn btn-primary"></button>
                     }
                     else
                     {
-                        
+                        <InputText @bind-Value="question.Answer" @onfocusout="SaveQuiz" class="form-control mb-2" />
                     }
                 </div>
             }
@@ -61,8 +67,10 @@
         }
     }
 
-    private async void AddChoiceOption(int index)
+    private async void AddChoice(int qindex)
     {
+        quiz.Questions[qindex].Choices.Add($"{quiz.Questions[qindex].Choices.Count + 1}. Choice");
+        quiz.Questions[qindex].AnswerIndexes.Add(false);
         db.Update(quiz);
         await db.SaveChangesAsync();
     }
