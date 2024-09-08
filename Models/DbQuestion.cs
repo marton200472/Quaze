@@ -7,8 +7,8 @@ public class DbQuestion
     public string Description { get; set; }
     public int TimeLimit { get; set; }
     public Type QuestionType { get; set; }
-    public string[]? Choices { get; set; }
-    public int[]? AnswerIndexes { get; set; }
+    public List<string>? Choices { get; set; }
+    public List<bool>? AnswerIndexes { get; set; }
     public string? Answer { get; set; }
 
     public DbQuestion()
