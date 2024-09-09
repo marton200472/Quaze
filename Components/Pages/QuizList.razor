@@ -6,6 +6,10 @@
 @inject IDbContextFactory<QuazeDbContext> dbFactory
 @inject SignInManager<User> signinManager
 @inject UserManager<User> userManager
+@inject NavigationManager namvManager
+@inject IUserStore<User> userStore
+
+<button @onclick="CreateNewAsync">New Quiz</button>
 
 @if(Quizzes is null) {
     <p>Loading...</p>
@@ -23,13 +27,27 @@ else {
     [CascadingParameter]
     public Task<AuthenticationState>? authenticationState {get;set;}
 
+    private User? LocalUser {get;set;}
+
+
+    private async Task CreateNewAsync() {
+        Console.WriteLine("\n\n\n"+LocalUser);
+        var nq = new Models.Quiz();
+        nq.Owner = LocalUser;
+        Console.WriteLine("\n\n\n"+LocalUser.Id);
+        using var db = await dbFactory.CreateDbContextAsync();
+        db.Quizes.Add(nq);
+        await db.SaveChangesAsync();
+        namvManager.NavigateTo($"/editquiz/{nq.Id}",true);
+    }
 
     protected override async Task OnInitializedAsync() {
         var authState = await authenticationState;
-        
-
-        var userId = authState.User.Claims.First(x=>x.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value;
-        var user = await userManager.FindByIdAsync(userId);
+        //Console.WriteLine("\n\n\n\n" + ((userStore as Microsoft.AspNetCore.Identity.EntityFrameworkCore.UserStore<User, IdentityRole, QuazeDbContext,string, IdentityUserClaim<string>, IdentityUserRole<string>, IdentityUserLogin<string>, IdentityUserToken<string>, IdentityRoleClaim<string>>).Context.));
+        //var userId = authState.User.Claims.First(x=>x.Type == System.Security.Claims.ClaimTypes.).Value;
+        var user = await userManager.FindByNameAsync(authState.User.Identity.Name);
+        Console.WriteLine(user.UserName);
+        LocalUser = user;
         using var db = await dbFactory.CreateDbContextAsync();
         Quizzes = await db.Quizes.Where(x=>x.Owner == user).ToListAsync();
     }

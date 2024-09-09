@@ -28,6 +28,8 @@ else {
     connStr = builder.Configuration.GetConnectionString("Default")!;
 }
 
+builder.Services.AddTransient(x=>new QuazeDbContext(new DbContextOptionsBuilder<QuazeDbContext>().UseMySql(connStr, ServerVersion.AutoDetect(connStr)).Options));
+
 builder.Services.AddDbContextFactory<QuazeDbContext>(c=>{
     c.UseMySql(connStr, ServerVersion.AutoDetect(connStr));
 });

@@ -33,7 +33,7 @@
 
     private void OnSubmit() {
         if(true || sessionSrv.Sessions.Any(x=>x.Id == QuizId)) {
-            nav.NavigateTo($"/quiz/{QuizId}");
+            nav.NavigateTo($"/quiz/{QuizId}", true);
         }
         else {
             DoesntExist = true;
