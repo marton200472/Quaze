@@ -31,6 +31,6 @@ else {
         var userId = authState.User.Claims.First(x=>x.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value;
         var user = await userManager.FindByIdAsync(userId);
         using var db = await dbFactory.CreateDbContextAsync();
-        Quizzes = db.Quizes.Where(x=>x.Owner == user).ToList();
+        Quizzes = await db.Quizes.Where(x=>x.Owner == user).ToListAsync();
     }
 }
