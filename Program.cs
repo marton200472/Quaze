@@ -28,9 +28,6 @@ else {
     connStr = builder.Configuration.GetConnectionString("Default")!;
 }
 
-builder.Services.AddDbContext<QuazeDbContext>(c=>{
-    c.UseMySql(connStr, ServerVersion.AutoDetect(connStr));
-});
 builder.Services.AddDbContextFactory<QuazeDbContext>(c=>{
     c.UseMySql(connStr, ServerVersion.AutoDetect(connStr));
 });
