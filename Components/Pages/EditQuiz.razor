@@ -49,7 +49,7 @@
                         </div>
                         <div class="col">
                             <div class="form-floating mb-3">
-                                <InputSelect @bind-Value="question.QuestionType" class="form-select mb-2" id="lofazs3">
+                                <InputSelect @bind-Value="question.QuestionType" @onfocusout="SaveQuiz" class="form-select mb-2" id="lofazs3">
                                     <option value="@Question.Type.Choice">Choice</option>
                                     <option value="@Question.Type.Open">Open-Word</option>
                                 </InputSelect>
