@@ -31,15 +31,6 @@ services:
       interval: 3s
       retries: 10
       start_period: 10s
-  phpmyadmin:
-    image: phpmyadmin:apache
-    restart: always
-    ports:
-      - 8087:80
-    environment:
-      - MYSQL_USER=quaze
-      - MYSQL_PASSWORD=quaze
-      - PMA_HOST=db
 volumes:
   db-data:
     driver: local
