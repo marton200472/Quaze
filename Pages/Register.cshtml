@@ -1,8 +1,12 @@
-@page "/admin/auth/register"
+@page "/auth/register"
 @model Quaze.Components.Pages.RegisterModel
 
 <form method="post">
-    <input name="@Html.NameFor(x=>x.Username)" placeholder="Username" />
-    <input type="password" name="@Html.NameFor(x=>x.Password)" placeholder="Username" />
+    <input value="@Model.Username" name="@Html.NameFor(x=>x.Username)" placeholder="Username" required/>
+    <input type="password" name="@Html.NameFor(x=>x.Password)" placeholder="Password" required/>
     <button type="submit">Register</button>
 </form>
+
+@foreach(var err in Model.Errors) {
+    <p class="text-danger">@err</p>
+}

@@ -6,6 +6,8 @@
 @using System.Security.Claims
 @attribute [Authorize]
 
+@layout Quaze.Components.Layout.QuizLayout
+
 @if(State == LocalState.Error) {
     <p>Error</p>
 }

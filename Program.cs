@@ -1,4 +1,5 @@
 using System.Reflection.Metadata.Ecma335;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -34,10 +35,17 @@ builder.Services.AddDbContextFactory<QuazeDbContext>(c=>{
     c.UseMySql(connStr, ServerVersion.AutoDetect(connStr));
 });
 
-builder.Services.AddAuthentication();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(c=>{
+    c.LoginPath = "/auth/login";
+    c.LogoutPath = "/auth/logout";
+    c.AccessDeniedPath = "/auth/login";
+});
 builder.Services.AddAuthorization();
 
-builder.Services.AddIdentity<Quaze.Models.User,IdentityRole>().AddEntityFrameworkStores<QuazeDbContext>();
+builder.Services.AddIdentity<Quaze.Models.User,IdentityRole>(c=>{
+
+})
+.AddEntityFrameworkStores<QuazeDbContext>();
 
 builder.Services.AddCascadingAuthenticationState();
 

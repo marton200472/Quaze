@@ -19,6 +19,8 @@ public class RegisterModel : PageModel
     private readonly UserManager<User> userManager;
     private readonly SignInManager<User> signInManager;
 
+    public IEnumerable<string> Errors {get;private set;} = Enumerable.Empty<string>();
+
     public RegisterModel(IDbContextFactory<QuazeDbContext> dbFactory, UserManager<User> uManager, SignInManager<User> signManager)
     {
         this.dbFactory = dbFactory;
@@ -27,11 +29,19 @@ public class RegisterModel : PageModel
     }
 
     public async Task<IActionResult> OnPostAsync() {
+
+        if (Username is null || Password is null)
+        {
+            return Page();   
+        }
         var user = new User() {UserName = Username};
         var result = await userManager.CreateAsync(user, Password);
-        foreach(var x in result.Errors) {
-            System.Console.WriteLine("\n\n"+x.Description);
+        if (result.Errors.Any())
+        {
+            Errors = result.Errors.Select(x=>x.Description);
+            return Page();
         }
+        
         user = await userManager.FindByNameAsync(Username);
         await signInManager.SignInAsync(user, true);
         return Redirect("/");
