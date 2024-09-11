@@ -35,17 +35,20 @@ builder.Services.AddDbContextFactory<QuazeDbContext>(c=>{
     c.UseMySql(connStr, ServerVersion.AutoDetect(connStr));
 });
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(c=>{
-    c.LoginPath = "/auth/login";
-    c.LogoutPath = "/auth/logout";
-    c.AccessDeniedPath = "/auth/login";
-});
+builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
+
+
 
 builder.Services.AddIdentity<Quaze.Models.User,IdentityRole>(c=>{
 
 })
 .AddEntityFrameworkStores<QuazeDbContext>();
+
+builder.Services.ConfigureApplicationCookie(c=>{
+    c.LoginPath = "/auth/login";
+    c.Cookie.SameSite = SameSiteMode.Strict;
+});
 
 builder.Services.AddCascadingAuthenticationState();
 

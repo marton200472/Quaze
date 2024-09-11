@@ -1,0 +1,12 @@
+@page "/auth/login"
+@model Quaze.Components.Pages.LoginModel
+
+<form method="post">
+    <input value="@Model.Username" name="@Html.NameFor(x=>x.Username)" placeholder="Username" required/>
+    <input type="password" name="@Html.NameFor(x=>x.Password)" placeholder="Password" required/>
+    <button type="submit">Register</button>
+</form>
+
+@foreach(var err in Model.Errors) {
+    <p class="text-danger">@err</p>
+}
