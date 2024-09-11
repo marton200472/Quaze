@@ -45,10 +45,26 @@
 }
 
 @if(Session.State == SessionState.End) {
-    <p>Quiz has ended</p>
+    <div class="row w-100">
+            <div class="row w-50 mx-auto">
+                    <p class="text-center">Quiz has ended</p>
+                    <a class="btn btn-primary mx-auto" href="/">Back to Main Menu</a>
+            </div>
+            
+        </div>
 }
 
 @if(Session.State == SessionState.QuestionEnd) {
+    @if(LocalParticipant.Answers.ContainsKey(Session.CurrentQuestion.Id)) {
+        @if(Session.CurrentQuestion.QuestionType == Question.Type.Choice) {
+            <p>Your answer was @(((Session.CurrentQuestion.Choices.Where(x=>x.Valid).Select(x=>x.Text).Except(LocalParticipant.Answers[Session.CurrentQuestion.Id]).Count() == 0 && !Session.CurrentQuestion.Choices.Where(x=>!x.Valid).Select(x=>x.Text).Any(x=>LocalParticipant.Answers[Session.CurrentQuestion.Id].Contains(x))) ?"correct":"incorrect")).</p>
+            
+        }
+        else {
+            <p>Your answer was @(Session.CurrentQuestion.Choices.Select(x=>x.Text).Contains(LocalParticipant.Answers[Session.CurrentQuestion.Id][0])?"correct":"incorrect").</p>
+        }
+    }
+    
     
 }
 
@@ -90,7 +106,6 @@
         else {
             LocalParticipant.Answers[Session.CurrentQuestion.Id] = [Answer];
         }
-        Console.WriteLine(string.Join(", ",LocalParticipant.Answers[Session.CurrentQuestion.Id]));
 
         State = LocalState.Sent;
     }

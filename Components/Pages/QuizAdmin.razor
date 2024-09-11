@@ -74,19 +74,22 @@
                             <p>Correct: </p>
                         }
                         <p>@ans.Text</p>
-                        <p>The answer was chosen by @Session.Participants.Count(x => x.Answers[Session.CurrentQuestion.Id].Contains(ans.Text))</p>
+                        <p>The answer was chosen by @Session.Participants.Count(x => x.Answers.ContainsKey(Session.CurrentQuestion.Id) &&  x.Answers[Session.CurrentQuestion.Id].Contains(ans.Text))</p>
                     }
                 }
                 else
                 {
-                    foreach (var ans in Session.CurrentQuestion.Choices)
+                    <h2>Correct answers</h2>
+                    foreach(var ans in Session.CurrentQuestion.Choices.Select(x=>x.Text)) {
+                        <p>@ans</p>
+                        <p>The answer was chosen by @Session.Participants.Count(x => x.Answers.ContainsKey(Session.CurrentQuestion.Id) && x.Answers[Session.CurrentQuestion.Id].Contains(ans))</p>
+                    }
+                    <h2>Other answers</h2>
+                    foreach (var ans in Session.Participants.SelectMany(x=>x.Answers.ContainsKey(Session.CurrentQuestion.Id)?x.Answers[Session.CurrentQuestion.Id]:Enumerable.Empty<string>()).Distinct().Except(Session.CurrentQuestion.Choices.Select(x=>x.Text)))
                     {
-                        @if (ans.Valid)
-                        {
-                            <p>Correct: </p>
-                        }
-                        <p>@ans.Text</p>
-                        <p>The answer was chosen by @Session.Participants.Count(x => x.Answers[Session.CurrentQuestion.Id].Contains(ans.Text))</p>
+                        
+                        <p>@ans</p>
+                        <p>The answer was chosen by @Session.Participants.Count(x => x.Answers.ContainsKey(Session.CurrentQuestion.Id) && x.Answers[Session.CurrentQuestion.Id].Contains(ans))</p>
                     }
                 }
             </div>
