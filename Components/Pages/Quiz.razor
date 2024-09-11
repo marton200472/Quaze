@@ -56,9 +56,8 @@
             return;
         }
         //await signInManager.SignInWithClaimsAsync(new IdentityUser() {UserName = Session.Id+LocalParticipant.Name},false ,new System.Security.Claims.Claim[] {new(Session.Id, LocalParticipant.Name)});
-        Console.WriteLine(Session.Id + " " + LocalParticipant.Name);
+        
         await sessionStorage.SetAsync(Session.Id, LocalParticipant.Name);
-        Console.WriteLine("Signed in");
         Session.Participants.Add(LocalParticipant);
         State = LocalState.Active;
     }

@@ -4,7 +4,7 @@
 <form method="post">
     <input value="@Model.Username" name="@Html.NameFor(x=>x.Username)" placeholder="Username" required/>
     <input type="password" name="@Html.NameFor(x=>x.Password)" placeholder="Password" required/>
-    <button type="submit">Register</button>
+    <button type="submit">Log in</button>
 </form>
 
 @foreach(var err in Model.Errors) {

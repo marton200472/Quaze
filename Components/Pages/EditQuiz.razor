@@ -12,7 +12,7 @@
     }
     else
     {
-        <div class="form-group w-50 m-auto">
+        <div class="form-group m-auto">
             <div class="form-group mb-5">
                 <div class="form-floating mb-3">
                     <InputText @bind-Value="quiz.Title" @onfocusout="SaveQuiz" class="form-control form-control-lg mb-2" placeholder="Enter title..." id="fltlblforquiztitle" />
@@ -25,7 +25,7 @@
             </div>
             @foreach (var question in quiz.Questions)
             {
-                <div class="container w-75 mb-2 border border-primary border-5 rounded p-3">
+                <div class="container mb-2 border border-primary border-5 rounded p-3">
                     <div class="row">
                         <div class="col">
                             <div class="form-floating mb-3">
@@ -59,13 +59,16 @@
                     </div>
                     <div>
                         @if(question.ImageGuid.HasValue) {
-                            <img src="@($"/api/image/{question.ImageGuid}")" class="w-100" />
-                            <button @onclick="()=>{question.ImageGuid = null; _= SaveQuiz();}" class="btn btn-danger align-content-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-                                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
-                                </svg>
-                            </button>
+                            <div class="position-relative">
+                                <img src="@($"/api/image/{question.ImageGuid}")" class="w-100" />
+                                <button @onclick="()=>{question.ImageGuid = null; _= SaveQuiz();}" class="btn btn-danger align-content-center position-absolute" style="right: 5pt; top: 5pt;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                                    </svg>
+                                </button>
+                            </div>
+                            
                         }
                         else {
                             <div class="mb-3">
@@ -83,7 +86,7 @@
                                         <InputCheckbox @bind-Value="choice.Valid" @onclick="SaveQuiz" class="form-check" />
                                     </div>
                                     <div class="form-floating col-8">
-                                        <InputText @bind-Value="choice.Text" @onfocusout="SaveQuiz" class="form-control mb-2" id="lofazs" />
+                                        <InputText @bind-Value="choice.Text"  @onfocusout="SaveQuiz" class="form-control mb-2" id="lofazs" />
                                         <label for="lofazs">Text</label>
                                     </div>
                                     <div class="col">
@@ -92,7 +95,6 @@
                                                 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
                                                 <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
                                             </svg>
-    
                                         </button>
                                     </div>
                                 </div>
@@ -102,22 +104,29 @@
                     }
                     else
                     {
+                        int choiceI = 1;
                         foreach (var answer in question.Choices)
-                        {   <div class="row">
-                                <div class="col form-floating mb-2">
-                                <InputText @bind-Value="answer.Text" @onfocusout="SaveQuiz" class="form-control mb-2" id="lofazs4" />
-                                <label for="lofazs4">Answer</label>
-                            </div>
-                            <div class="col-2">
-                                <button @onclick="()=>RemoveOption(question, answer)" class="btn btn-danger align-content-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-                                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
-                                    </svg>
-                                </button>
-                            </div>
-                            </div>
+                        {   
+                            
+                            <div class="row align-items-center my-1">
+                                <div class="col">
+                                    <div class="form-floating">
+                                        <InputText @bind-Value="answer.Text" @onfocusout="SaveQuiz" class="form-control" id="@(question.Id + "-answer-"+choiceI)" />
+                                        <label for="@(question.Id + "-answer-"+choiceI)">Answer</label>
+                                    </div>
                                     
+                                </div>
+                            
+                                <div class="col-2">
+                                    <button @onclick="()=>RemoveOption(question, answer)" class="btn btn-danger align-content-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                                            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            choiceI++;   
                         }
                         <button @onclick="()=>AddOption(question)" class="btn btn-primary mb-2">Add Choice</button>
                     }
@@ -161,12 +170,12 @@
 
     private async Task AddOption(Question q)
     {
-        q.Choices.Add(new Question.Choice() { Text = "", Valid = false });
+        q.Choices.Add(new Choice() { Text = "", Valid = false });
         db.Update(q);
         await db.SaveChangesAsync();
     }
 
-    private async Task RemoveOption(Question q, Question.Choice c)
+    private async Task RemoveOption(Question q, Choice c)
     {
         q.Choices.Remove(c);
         db.Update(q);

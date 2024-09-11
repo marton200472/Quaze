@@ -3,6 +3,7 @@
 
 <form method="post">
     <input value="@Model.Username" name="@Html.NameFor(x=>x.Username)" placeholder="Username" required/>
+    <input value="@Model.Email" name="@Html.NameFor(x=>x.Email)" placeholder="E-mail address" required/>
     <input type="password" name="@Html.NameFor(x=>x.Password)" placeholder="Password" required/>
     <button type="submit">Register</button>
 </form>

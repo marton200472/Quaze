@@ -1,6 +1,6 @@
 namespace Quaze.Models;
 
-public class Question
+public partial class Question
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
@@ -11,12 +11,6 @@ public class Question
     public string? Answer { get; set; } = string.Empty;
 
     public Guid? ImageGuid { get; set; }
-
-    public class Choice
-    {
-        public string Text { get; set; } = string.Empty;
-        public bool Valid { get; set; }
-    }
 
     public enum Type {
         Choice, Open

@@ -12,6 +12,8 @@ public class RegisterModel : PageModel
     [BindProperty]
     public string Username {get;set;} = "";
     [BindProperty]
+    public string Email {get;set;} = "";
+    [BindProperty]
     public string Password {get; set;} = "";
 
 
@@ -29,12 +31,7 @@ public class RegisterModel : PageModel
     }
 
     public async Task<IActionResult> OnPostAsync() {
-
-        if (Username is null || Password is null)
-        {
-            return Page();   
-        }
-        var user = new User() {UserName = Username};
+        var user = new User() {UserName = Username, Email = Email};
         var result = await userManager.CreateAsync(user, Password);
         if (result.Errors.Any())
         {

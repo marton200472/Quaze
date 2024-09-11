@@ -1,6 +1,7 @@
 @rendermode InteractiveServer
 
-<h1>@Session.Quiz.Title</h1>
+<h1 class="text-center">@Session.Quiz.Title</h1>
+<hr/>
   
 @if(Session.State == SessionState.WaitStart) {
     <p>Please wait for the administrator to start the quiz</p>
@@ -8,35 +9,96 @@
 
 @if(Session.State == SessionState.QuestionActive) {
     var question = Session.Quiz.Questions[Session.QuestionIndex];
-    
-    <h2>@question.Title</h2>
-    <p>@question.Description</p>
-    <p>@TimeSpan.FromSeconds(SecondsRemaining).ToString()</p>
+    <div class="container d-flex flex-column align-items-center">
+        
+        <div class="mb-2">
+            <div class="w-100 d-flex justify-content-between mb-2">
+                <h2 class="align-self-center m-0">@question.Title</h2>
+                <div class="rounded-pill text-light p-2" style="background-color: green; width: fit-content; float: right;">@TimeSpan.FromSeconds(SecondsRemaining).ToString()</div>
+            </div>
+            
+            <img src="@($"api/image/{question.ImageGuid}")" class="w-100"/>
+            <p class="p-3 w-100 border">@question.Description</p>
+        </div>
+        @if(State == LocalState.Active) {
+            if(question.QuestionType == Question.Type.Choice) {
+                int index = 1;
+                <div class="options w-100 mb-3">
+                    @foreach(var c in Choices) {
+                        <label class="quiz-check">
+                            <input type="checkbox" @bind-value="c.Valid"/>
+                            <span>@c.Text</span>
+                        </label>
+                        index++;
+                    }
+                </div>
+            }
+            else if(question.QuestionType == Question.Type.Open) {
+                <label class="mx-auto mb-4">
+                    Answer: <input @bind-value="Answer" type="text" />
+                </label>
+            }
+            <button @onclick="SendAnswer" type="button" class="btn btn-primary">Send answer</button>
+        }
+        
+    </div> 
 }
+
 
 @if(Session.State == SessionState.End) {
     <p>Quiz has ended</p>
+}
+
+@if(Session.State == SessionState.QuestionEnd) {
+    <p>Get ready for the next question!</p>
 }
 
 
 
 @code {
     [Parameter]
-    public Session? Session {get;set;}
+    public required Session Session {get;set;}
     [Parameter]
     public Participant? LocalParticipant {get;set;}
 
+    private Choice[] Choices {get;set;} = Array.Empty<Choice>();
+    private string Answer {get;set;} = "";
+
     private int SecondsRemaining {get;set;} = 0;
+
+    private LocalState State {get;set;}
 
 
     protected override void OnParametersSet() {
         SecondsRemaining = Session.TimeLeft;
     }
 
-    protected override async Task OnInitializedAsync() {
+    protected override void OnInitialized() {
         Session.StateChanged += (sender, state) => {InvokeAsync(StateHasChanged);};
-        //StateHasChanged();
         Session.TimerTick += (s, seconds) => {SecondsRemaining = seconds; InvokeAsync(StateHasChanged);};
-        
+
+        if(Session.CurrentQuestion.QuestionType == Question.Type.Choice) {
+            Choices = Session.CurrentQuestion.Choices.Select(x=>new Choice() {Text=x.Text, Valid=false}).ToArray();
+        }
+
+        if(LocalParticipant.Answers.ContainsKey(Session.CurrentQuestion.Id)) {
+            State = LocalState.Sent;
+        }
+    }
+
+    private void SendAnswer() {
+        if(Session.CurrentQuestion.QuestionType == Question.Type.Choice) {
+            LocalParticipant.Answers[Session.CurrentQuestion.Id] = Choices.Where(x=>x.Valid).Select(x=>x.Text).ToList();
+        }
+        else {
+            LocalParticipant.Answers[Session.CurrentQuestion.Id] = [Answer];
+        }
+        Console.WriteLine(string.Join(", ",LocalParticipant.Answers[Session.CurrentQuestion.Id]));
+
+        State = LocalState.Sent;
+    }
+
+    enum LocalState {
+        Active, Sent
     }
 }

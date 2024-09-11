@@ -84,6 +84,11 @@ app.MapGet("api/image/{id:guid}",async ([FromRoute] Guid id, [FromServices]Quaze
     return Results.File(image.Data);
 });
 
+app.MapGet("auth/logout", async ([FromServices]SignInManager<Quaze.Models.User> signInManager) => {
+    await signInManager.SignOutAsync();
+    return Results.Redirect("/");
+});
+
 using (IServiceScope scope = app.Services.CreateScope())
     {
         var db = (QuazeDbContext)scope.ServiceProvider.GetRequiredService(typeof(QuazeDbContext));

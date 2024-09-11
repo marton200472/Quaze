@@ -42,6 +42,6 @@ public class LoginModel : PageModel
             return Page();
         }
 
-        return LocalRedirect(returnUrl);
+        return LocalRedirect(string.IsNullOrWhiteSpace(returnUrl)?"/":returnUrl);
     }
 }

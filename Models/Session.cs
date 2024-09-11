@@ -92,7 +92,13 @@ public class Session
         NextState();
     }
 
-    
+    private object ParticipantLock = new();
+
+    public void AddParticipant(Participant p) {
+        lock(ParticipantLock) {
+            Participants.Add(p);
+        }
+    }
 }
 
 public enum SessionState {
