@@ -1,7 +1,6 @@
 ﻿@page "/editquiz/{QuizId:int}"
 @using Microsoft.EntityFrameworkCore
 
-
 @inject NavigationManager navManager
 @inject Microsoft.EntityFrameworkCore.IDbContextFactory<QuazeDbContext> dbFactory
 @rendermode InteractiveServer
@@ -59,7 +58,6 @@
                         </div>
                     </div>
                     <div>
-                        
                         @if(question.ImageGuid.HasValue) {
                             <img src="@($"/api/image/{question.ImageGuid}")" class="w-100" />
                             <button @onclick="()=>{question.ImageGuid = null; _= SaveQuiz();}" class="btn btn-danger align-content-center">
@@ -70,7 +68,9 @@
                             </button>
                         }
                         else {
-                            <FileUpload OnImageChanged="g=>{question.ImageGuid = g; _=SaveQuiz(); InvokeAsync(StateHasChanged);}" />
+                            <div class="mb-3">
+                                <FileUpload OnImageChanged="g=>{question.ImageGuid = g; _=SaveQuiz(); InvokeAsync(StateHasChanged);}" DisplayText="Image" />
+                            </div>
                         }
                     </div>
                     @if (question.QuestionType == Question.Type.Choice)

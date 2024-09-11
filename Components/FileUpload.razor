@@ -1,7 +1,15 @@
 @inject Microsoft.EntityFrameworkCore.IDbContextFactory<QuazeDbContext> dbFactory
 <div>
-    <label>Kép</label>
-    <InputFile OnChange="UploadFile"/>
+    <label class="">
+        @if (DisplayText is null) {
+            <span>Thumbnail</span>
+        }
+        else
+        {
+            <span>@DisplayText</span>
+        }
+        <InputFile OnChange="UploadFile" class="form-control" />
+    </label>
 </div>
 
 @if(UploadInProgress) {
@@ -13,6 +21,8 @@
 @code {
     [Parameter]
     public required Action<Guid> OnImageChanged {get;set;}
+    [Parameter]
+    public string? DisplayText { get; set; }
 
     private bool UploadInProgress {get;set;}
 
