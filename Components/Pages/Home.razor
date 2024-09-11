@@ -22,10 +22,10 @@
 
 
     private bool DoesntExist = false;
-    
+
 
     private void OnSubmit() {
-        if(true || sessionSrv.Sessions.Any(x=>x.Id == QuizId)) {
+        if(sessionSrv.Sessions.Any(x=>x.Id == QuizId)) {
             nav.NavigateTo($"/quiz/{QuizId}", true);
         }
         else {
