@@ -16,8 +16,10 @@
                 <h2 class="align-self-center m-0">@question.Title</h2>
                 <div class="rounded-pill text-light p-2" style="background-color: green; width: fit-content; float: right;">@TimeSpan.FromSeconds(SecondsRemaining).ToString()</div>
             </div>
+            @if(question.ImageGuid.HasValue) {
+                <img src="@($"api/image/{question.ImageGuid}")" class="w-100"/>
+            }
             
-            <img src="@($"api/image/{question.ImageGuid}")" class="w-100"/>
             <p class="p-3 w-100 border">@question.Description</p>
         </div>
         @if(State == LocalState.Active) {
@@ -87,12 +89,21 @@
     }
 
     protected override void OnInitialized() {
-        Session.StateChanged += (sender, state) => {InvokeAsync(()=>{State = LocalState.Active;StateHasChanged();});};
+        Session.StateChanged += (sender, state) => {
+            if(state == SessionState.QuestionActive)
+            {
+                State = LocalState.Active;
+            }
+            if(Session.CurrentQuestion.QuestionType == Question.Type.Choice) {
+                Choices = Session.CurrentQuestion.Choices.Select(x=>new Choice() {Text=x.Text, Valid=false}).ToArray();
+            }
+            InvokeAsync(StateHasChanged);
+        };
         Session.TimerTick += (s, seconds) => {SecondsRemaining = seconds; InvokeAsync(StateHasChanged);};
 
         if(Session.CurrentQuestion.QuestionType == Question.Type.Choice) {
-            Choices = Session.CurrentQuestion.Choices.Select(x=>new Choice() {Text=x.Text, Valid=false}).ToArray();
-        }
+                Choices = Session.CurrentQuestion.Choices.Select(x=>new Choice() {Text=x.Text, Valid=false}).ToArray();
+            }
 
         if(LocalParticipant.Answers.ContainsKey(Session.CurrentQuestion.Id)) {
             State = LocalState.Sent;

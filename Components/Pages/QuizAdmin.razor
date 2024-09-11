@@ -39,8 +39,10 @@
                     <h2 class="align-self-center m-0">@question.Title</h2>
                     <div class="rounded-pill text-light p-2" style="background-color: green; width: fit-content; float: right;">@TimeSpan.FromSeconds(SecondsRemaining).ToString()</div>
                 </div>
+                @if(question.ImageGuid.HasValue) {
+                    <img src="@($"api/image/{question.ImageGuid}")" class="w-100"/>
+                }
                 
-                <img src="@($"api/image/{question.ImageGuid}")" class="w-100"/>
                 <p class="p-3 w-100 border">@question.Description</p>
             </div>
             @if(State == LocalState.Active) {
