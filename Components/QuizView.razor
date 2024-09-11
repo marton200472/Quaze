@@ -44,16 +44,13 @@
     </div> 
 }
 
-
 @if(Session.State == SessionState.End) {
     <p>Quiz has ended</p>
 }
 
 @if(Session.State == SessionState.QuestionEnd) {
-    <p>Get ready for the next question!</p>
+    
 }
-
-
 
 @code {
     [Parameter]

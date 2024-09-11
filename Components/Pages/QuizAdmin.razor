@@ -27,11 +27,41 @@
     }
 
     @if(Session.State == SessionState.QuestionEnd) {
+        <div class="container d-flex flex-column align-items-center">
+            <div class="">
+                <h1>Answer(s):</h1>
+                @if (Session.CurrentQuestion.QuestionType == Question.Type.Choice)
+                {
+                    foreach (var ans in Session.CurrentQuestion.Choices)
+                    {
+                        @if (ans.Valid)
+                        {
+                            <p>Correct: </p>
+                        }
+                        <p>@ans.Text</p>
+                        <p>The answer was chosen by @Session.Participants.Count(x => x.Answers[Session.CurrentQuestion.Id].Contains(ans.Text))</p>
+                    }
+                }
+                else
+                {
+                    foreach (var ans in Session.CurrentQuestion.Choices)
+                    {
+                        @if (ans.Valid)
+                        {
+                            <p>Correct: </p>
+                        }
+                        <p>@ans.Text</p>
+                        <p>The answer was chosen by @Session.Participants.Count(x => x.Answers[Session.CurrentQuestion.Id].Contains(ans.Text))</p>
+                    }
+                }
+            </div>
+        </div>
         <button @onclick="Session.NextQuestion">Next question</button>
     }
 
     @if(Session.State == SessionState.End) {
         <p>Quiz has ended</p>
+
     }
 }
 
