@@ -87,7 +87,7 @@
     }
 
     protected override void OnInitialized() {
-        Session.StateChanged += (sender, state) => {State = LocalState.Active; InvokeAsync(StateHasChanged);};
+        Session.StateChanged += (sender, state) => {InvokeAsync(()=>{State = LocalState.Active;StateHasChanged();});};
         Session.TimerTick += (s, seconds) => {SecondsRemaining = seconds; InvokeAsync(StateHasChanged);};
 
         if(Session.CurrentQuestion.QuestionType == Question.Type.Choice) {
