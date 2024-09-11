@@ -92,6 +92,14 @@ public class Session
         NextState();
     }
 
+    public void EndQuestion() {
+        if (State != SessionState.QuestionActive)
+        {
+            return;
+        }
+        NextState();
+    }
+
     private object ParticipantLock = new();
 
     public void AddParticipant(Participant p) {

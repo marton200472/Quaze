@@ -12,7 +12,7 @@
     @if(DoesntExist) {
         <label class="text-danger">QUiz doesn't exist</label>
     }
-    <button type="submit">Join</button>
+    <button class="btn btn-primary my-3" type="submit">Join</button>
 </EditForm>
 
 
@@ -22,11 +22,7 @@
 
 
     private bool DoesntExist = false;
-
-
-    protected override async Task OnInitializedAsync() {
-        
-    }
+    
 
     private void OnSubmit() {
         if(true || sessionSrv.Sessions.Any(x=>x.Id == QuizId)) {

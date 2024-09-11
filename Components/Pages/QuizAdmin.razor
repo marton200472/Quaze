@@ -8,22 +8,57 @@
 
 @layout Quaze.Components.Layout.QuizLayout
 
+
+
+
 @if(State == LocalState.Error) {
     <p>Error</p>
 }
 
 @if(State == LocalState.Active) {
-    <h1>@Session.Quiz.Title</h1>
+    <h1 class="text-center">@Session.Quiz.Title</h1>
+    <hr />
     @if(Session.State == SessionState.WaitStart) {
-        <h1>Session Id: @Session.Id</h1>
-        <button @onclick="Session.StartQuiz">Start Quiz</button>
+        
+
+        <div class="row w-100">
+            <div class="row w-50 mx-auto">
+                    <h1 class="text-center">Session Id: @Session.Id</h1>
+                    <button @onclick="Session.StartQuiz">Start Quiz</button>
+            </div>
+            
+        </div>
     }
 
     @if(Session.State == SessionState.QuestionActive) {
-        var question = Session.CurrentQuestion;
-        <h2>@question.Title</h2>
-        <p>@question.Description</p>
-        <p>@TimeSpan.FromSeconds(SecondsRemaining).ToString()</p>
+        var question = Session.Quiz.Questions[Session.QuestionIndex];
+        <div class="container d-flex flex-column align-items-center">
+            
+            <div class="mb-2">
+                <div class="w-100 d-flex justify-content-between mb-2">
+                    <h2 class="align-self-center m-0">@question.Title</h2>
+                    <div class="rounded-pill text-light p-2" style="background-color: green; width: fit-content; float: right;">@TimeSpan.FromSeconds(SecondsRemaining).ToString()</div>
+                </div>
+                
+                <img src="@($"api/image/{question.ImageGuid}")" class="w-100"/>
+                <p class="p-3 w-100 border">@question.Description</p>
+            </div>
+            @if(State == LocalState.Active) {
+                if(question.QuestionType == Question.Type.Choice) {
+                    int index = 1;
+                    <div class="options w-100 mb-3">
+                        @foreach(var c in Session.CurrentQuestion.Choices) {
+                            <label class="quiz-check">
+                                <span>@c.Text</span>
+                            </label>
+                            index++;
+                        }
+                    </div>
+                }
+            }
+            
+                <button @onclick="EndQuestion" type="button" class="btn btn-primary">End question</button>
+        </div> 
     }
 
     @if(Session.State == SessionState.QuestionEnd) {
@@ -31,7 +66,14 @@
     }
 
     @if(Session.State == SessionState.End) {
-        <p>Quiz has ended</p>
+        <div class="row w-100">
+            <div class="row w-50 mx-auto">
+                    <p class="text-center">Quiz has ended</p>
+                    <a class="btn btn-primary mx-auto" href="/">Back to Main Menu</a>
+            </div>
+            
+        </div>
+        
     }
 }
 
@@ -48,6 +90,10 @@
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
 
+
+    private void EndQuestion() {
+        Session.EndQuestion();
+    }
 
     protected override async Task OnInitializedAsync() {
         //try to join session
