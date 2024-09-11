@@ -52,28 +52,26 @@ public class Session
         switch (State)
         {
             case SessionState.WaitStart:
-                TimeLeft = Quiz.Questions[QuestionIndex].TimeLimit;
-                TimerEnabled = true;
+                TimeLeft = CurrentQuestion.TimeLimit;
                 State = SessionState.QuestionActive;
                 break;
             case SessionState.QuestionActive:
                 State = SessionState.QuestionEnd;
-                TimerEnabled = false;
                 break;
             case SessionState.QuestionEnd:
                 if (Quiz.Questions.Count>QuestionIndex+1)
                 {
                     QuestionIndex++;
-                    TimeLeft = Quiz.Questions[QuestionIndex].TimeLimit;
+                    TimeLeft = CurrentQuestion.TimeLimit;
                     State = SessionState.QuestionActive;
-                    TimerEnabled = true;
                 }
                 else {
                     State = SessionState.End;
-                    TimerEnabled = false;
                 }
                 break;
         }
+
+        TimerEnabled = State == SessionState.QuestionActive;
 
         StateChanged?.Invoke(this, State);
     }

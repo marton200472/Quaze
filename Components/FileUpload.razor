@@ -7,16 +7,12 @@
 @if(UploadInProgress) {
     <p>Uploading</p>
 }
-
-@if(ImageGuid.HasValue) {
-    <img src="@($"/api/image/{ImageGuid.Value.ToString()}")"/>
-}
     
 
 
 @code {
     [Parameter]
-    public required Action<Guid> OnFileUploaded {get;set;}
+    public required Action<Guid> OnImageChanged {get;set;}
 
     private bool UploadInProgress {get;set;}
 
@@ -28,7 +24,6 @@
         var db = await dbFactory.CreateDbContextAsync();
         DbImage image = new();
         
-        await Task.Delay(5000);
         //10 MB
         var stream = args.File.OpenReadStream(10*1024*1024);
         var mem = new MemoryStream() {Capacity = (int)args.File.Size};
@@ -42,12 +37,14 @@
         await mem.DisposeAsync();
         await stream.DisposeAsync();
 
-        await Task.Run(()=>OnFileUploaded?.Invoke(image.Id));
+        
 
         ImageGuid = image.Id;
 
         UploadInProgress = false;
         StateHasChanged();
+
+        await Task.Run(()=>OnImageChanged?.Invoke(image.Id));
     }
 }
 

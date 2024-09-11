@@ -28,7 +28,11 @@ public class RegisterModel : PageModel
 
     public async Task<IActionResult> OnPostAsync() {
         var user = new User() {UserName = Username};
-        await userManager.CreateAsync(user, Password);
+        var result = await userManager.CreateAsync(user, Password);
+        foreach(var x in result.Errors) {
+            System.Console.WriteLine("\n\n"+x.Description);
+        }
+        user = await userManager.FindByNameAsync(Username);
         await signInManager.SignInAsync(user, true);
         return Redirect("/");
     }

@@ -6,8 +6,8 @@
 @inject IDbContextFactory<QuazeDbContext> dbFactory
 @inject SignInManager<User> signinManager
 @inject UserManager<User> userManager
-@inject NavigationManager namvManager
-@inject IUserStore<User> userStore
+@inject NavigationManager navManager
+@inject SessionService sessionService
 
 <button @onclick="CreateNewAsync">New Quiz</button>
 
@@ -16,7 +16,12 @@
 }
 else {
     foreach(var q in Quizzes) {
-        <div></div>
+        <div>
+            <h3>@q.Title</h3>
+            <p>@q.Description</p>
+            <button class="btn btn-primary" @onclick="()=>StartQuizSession(q)">Start Quiz</button>
+            <button class="btn btn-secondary" @onclick="()=>EditQuiz(q)">Edit Quiz</button>
+        </div>
     }
 }
 
@@ -29,24 +34,28 @@ else {
 
     private User? LocalUser {get;set;}
 
+    private async Task StartQuizSession(Models.Quiz q) {
+        var id = await sessionService.StartNewSessionAsync(q);
+        navManager.NavigateTo($"/admin/quiz/{id}",true);
+    }
+
+    private void EditQuiz(Models.Quiz q) {
+        navManager.NavigateTo($"/editquiz/{q.Id}");
+    }
 
     private async Task CreateNewAsync() {
-        Console.WriteLine("\n\n\n"+LocalUser);
         var nq = new Models.Quiz();
         nq.Owner = LocalUser;
-        Console.WriteLine("\n\n\n"+LocalUser.Id);
         using var db = await dbFactory.CreateDbContextAsync();
+        db.Attach(LocalUser);
         db.Quizes.Add(nq);
         await db.SaveChangesAsync();
-        namvManager.NavigateTo($"/editquiz/{nq.Id}",true);
+        navManager.NavigateTo($"/editquiz/{nq.Id}",true);
     }
 
     protected override async Task OnInitializedAsync() {
         var authState = await authenticationState;
-        //Console.WriteLine("\n\n\n\n" + ((userStore as Microsoft.AspNetCore.Identity.EntityFrameworkCore.UserStore<User, IdentityRole, QuazeDbContext,string, IdentityUserClaim<string>, IdentityUserRole<string>, IdentityUserLogin<string>, IdentityUserToken<string>, IdentityRoleClaim<string>>).Context.));
-        //var userId = authState.User.Claims.First(x=>x.Type == System.Security.Claims.ClaimTypes.).Value;
         var user = await userManager.FindByNameAsync(authState.User.Identity.Name);
-        Console.WriteLine(user.UserName);
         LocalUser = user;
         using var db = await dbFactory.CreateDbContextAsync();
         Quizzes = await db.Quizes.Where(x=>x.Owner == user).ToListAsync();

@@ -51,7 +51,7 @@
         //try to join session
         var authState = await authenticationState;
 
-        var session = sessionService.Sessions.FirstOrDefault(x=>x.Id == sessionId && x.OwnerId == authState.User.Claims.First(x=>x.Type == ClaimTypes.NameIdentifier).Value);
+        var session = sessionService.Sessions.FirstOrDefault(x=>x.Id == sessionId);
         if(session is null) {
             State = LocalState.Error;
             return;

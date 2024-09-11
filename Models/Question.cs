@@ -10,6 +10,8 @@ public class Question
     public List<Choice>? Choices { get; set; } = new();
     public string? Answer { get; set; } = string.Empty;
 
+    public Guid? ImageGuid { get; set; }
+
     public class Choice
     {
         public string Text { get; set; } = string.Empty;

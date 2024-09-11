@@ -34,13 +34,9 @@
     }
 
     protected override async Task OnInitializedAsync() {
-        Session.StateChanged += (sender, state) => {if(state == SessionState.QuestionEnd) Session.NextQuestion(); InvokeAsync(StateHasChanged);};
+        Session.StateChanged += (sender, state) => {InvokeAsync(StateHasChanged);};
         //StateHasChanged();
         Session.TimerTick += (s, seconds) => {SecondsRemaining = seconds; InvokeAsync(StateHasChanged);};
         
-    }
-
-    private void OnStateChanged(SessionState state) {
-
     }
 }

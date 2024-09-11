@@ -1,6 +1,7 @@
 ﻿@page "/editquiz/{QuizId:int}"
 @using Microsoft.EntityFrameworkCore
 
+
 @inject NavigationManager navManager
 @inject Microsoft.EntityFrameworkCore.IDbContextFactory<QuazeDbContext> dbFactory
 @rendermode InteractiveServer
@@ -14,7 +15,6 @@
     {
         <div class="form-group w-50 m-auto">
             <div class="form-group mb-5">
-                @* Kellenek majd Labelek Bootstrapből*@
                 <div class="form-floating mb-3">
                     <InputText @bind-Value="quiz.Title" @onfocusout="SaveQuiz" class="form-control form-control-lg mb-2" placeholder="Enter title..." id="fltlblforquiztitle" />
                     <label for="fltlblforquiztitle">Title</label>
@@ -58,6 +58,21 @@
                             </div>
                         </div>
                     </div>
+                    <div>
+                        
+                        @if(question.ImageGuid.HasValue) {
+                            <img src="@($"/api/image/{question.ImageGuid}")" class="w-100" />
+                            <button @onclick="()=>{question.ImageGuid = null; _= SaveQuiz();}" class="btn btn-danger align-content-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                                </svg>
+                            </button>
+                        }
+                        else {
+                            <FileUpload OnImageChanged="g=>{question.ImageGuid = g; _=SaveQuiz(); InvokeAsync(StateHasChanged);}" />
+                        }
+                    </div>
                     @if (question.QuestionType == Question.Type.Choice)
                     {
                         foreach (var choice in question.Choices)
@@ -65,7 +80,7 @@
                             <div class="container">
                                 <div class="row">
                                     <div class="col-1">
-                                        <InputCheckbox @bind-Value="choice.Valid" @onfocusout="SaveQuiz" class="form-check" />
+                                        <InputCheckbox @bind-Value="choice.Valid" @onclick="SaveQuiz" class="form-check" />
                                     </div>
                                     <div class="form-floating col-8">
                                         <InputText @bind-Value="choice.Text" @onfocusout="SaveQuiz" class="form-control mb-2" id="lofazs" />
@@ -77,7 +92,7 @@
                                                 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
                                                 <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
                                             </svg>
-    using Microsoft.EntityFrameworkCore;
+    
                                         </button>
                                     </div>
                                 </div>
@@ -125,9 +140,13 @@
 
     private Models.Quiz? quiz { get; set; }
 
+    private bool ShouldSave {get;set;}
+
+    private QuazeDbContext db {get;set;}
+
     protected override async Task OnInitializedAsync()
     {
-        using var db = await dbFactory.CreateDbContextAsync();
+        db=await dbFactory.CreateDbContextAsync();
         if (QuizId is null)
         {
             quiz = new Models.Quiz();
@@ -136,46 +155,42 @@
         }
         else
         {
-            quiz = await db.Quizes.Include(x=>x.Questions).SingleOrDefaultAsync();
+            quiz = await db.Quizes.Include(x=>x.Questions).SingleOrDefaultAsync(x=>x.Id == QuizId);
         }
     }
 
     private async Task AddOption(Question q)
     {
-        using var db = await dbFactory.CreateDbContextAsync();
         q.Choices.Add(new Question.Choice() { Text = "", Valid = false });
-        db.Update(quiz);
+        db.Update(q);
         await db.SaveChangesAsync();
     }
 
     private async Task RemoveOption(Question q, Question.Choice c)
     {
-        using var db = await dbFactory.CreateDbContextAsync();
         q.Choices.Remove(c);
-        db.Update(quiz);
+        db.Update(q);
         await db.SaveChangesAsync();
     }
 
     private async Task AddQ()
     {
-        using var db = await dbFactory.CreateDbContextAsync();
         quiz.Questions.Add(new Question() { QuestionType = Question.Type.Choice });
-        db.Update(quiz);
         await db.SaveChangesAsync();
     }
 
     private async Task RemoveQ(Question q)
     {
-        using var db = await dbFactory.CreateDbContextAsync();
         quiz.Questions.Remove(q);
-        db.Update(quiz);
+        db.Remove(q);
         await db.SaveChangesAsync();
     }
 
     private async Task SaveQuiz()
     {
-        using var db = await dbFactory.CreateDbContextAsync();
-        db.Update(quiz);
+        db.UpdateRange(quiz.Questions);
         await db.SaveChangesAsync();
     }
+
+    
 }
