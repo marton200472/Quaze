@@ -93,10 +93,12 @@
             if(state == SessionState.QuestionActive)
             {
                 State = LocalState.Active;
+                if(Session.CurrentQuestion.QuestionType == Question.Type.Choice) {
+                    Choices = Session.CurrentQuestion.Choices.Select(x=>new Choice() {Text=x.Text, Valid=false}).ToArray();
+                }
+                Answer = "";
             }
-            if(Session.CurrentQuestion.QuestionType == Question.Type.Choice) {
-                Choices = Session.CurrentQuestion.Choices.Select(x=>new Choice() {Text=x.Text, Valid=false}).ToArray();
-            }
+            
             InvokeAsync(StateHasChanged);
         };
         Session.TimerTick += (s, seconds) => {SecondsRemaining = seconds; InvokeAsync(StateHasChanged);};
