@@ -93,6 +93,10 @@ a.auth, a.auth:visited, a.auth:active {
     display: block;
 }
 
+.auth-view {
+    margin-right: 80px;
+}
+
 @media (min-width: 641px) {
     .navbar-toggler {
         display: none;
@@ -106,4 +110,10 @@ a.auth, a.auth:visited, a.auth:active {
         height: calc(100vh - 3.5rem);
         overflow-y: auto;
     }
+
+    .auth-view {
+        margin-right: 0;
+    }
 }
+
+

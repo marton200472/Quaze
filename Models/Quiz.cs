@@ -7,5 +7,5 @@ public class Quiz
     public List<Question> Questions { get; set; } = new();
     public User Owner { get; set; } = new();
     public string Description { get; set; } = string.Empty;
-    // Title image
+    public Guid? ImageGuid { get; set; }
 }

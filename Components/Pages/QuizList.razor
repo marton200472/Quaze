@@ -22,9 +22,9 @@ else {
         <div class="container">
             <div class="row">
                 @foreach(var q in Quizzes) {
-                    <div class="col-md-4 col-xl-3 col-xxl-2">
-                        <div class="card mb-4 box-shadow">
-                            <img class="card-img-top" src="https://thumbs.dreamstime.com/z/transparent-background-grid-simulation-alpha-channel-png-seamless-pattern-gray-white-squares-checkered-texture-template-311565700.jpg?ct=jpeg" />
+                    <div class="col-md-4 col-xl-3 d-flex flex-column">
+                        <div class="card mb-4 box-shadow flex-fill">
+                            <img class="card-img-top" src="@(q.ImageGuid.HasValue?$"/api/image/{q.ImageGuid.Value}":"/img/placeholder.jpg")" />
                             <div class="card-body">
                                 <h3>@q.Title</h3>
                                 <p>@q.Description</p>
@@ -43,9 +43,9 @@ else {
     private List<Models.Quiz>? Quizzes {get;set;}
     
     [CascadingParameter]
-    public Task<AuthenticationState>? authenticationState {get;set;}
+    public required Task<AuthenticationState> authenticationState {get;set;}
 
-    private User? LocalUser {get;set;}
+    private User LocalUser {get;set;}
 
     private async Task StartQuizSession(Models.Quiz q) {
         var id = await sessionService.StartNewSessionAsync(q);
@@ -68,7 +68,10 @@ else {
 
     protected override async Task OnInitializedAsync() {
         var authState = await authenticationState;
-        var user = await userManager.FindByNameAsync(authState.User.Identity.Name);
+        var user = await userManager.FindByIdAsync(authState.User.Claims.First(x=>x.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+        if(user is null) {
+            throw new NullReferenceException();
+        }
         LocalUser = user;
         using var db = await dbFactory.CreateDbContextAsync();
         Quizzes = await db.Quizes.Where(x=>x.Owner == user).ToListAsync();

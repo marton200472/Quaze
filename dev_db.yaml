@@ -1,3 +1,5 @@
+name: quaze_devenv
+
 services:
   db:
     image: yobasystems/alpine-mariadb

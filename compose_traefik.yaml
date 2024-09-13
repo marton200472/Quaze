@@ -1,24 +1,34 @@
-name: quaze
+name: quaze_traefik
 
 services:
   server:
     build:
       context: .
       target: final
-    ports:
-      - 8086:8080
     depends_on:
-        db:
-          condition: service_healthy
+      db:
+        condition: service_healthy
     restart: always
+    expose:
+      - 8080
+    networks:
+      - traefik
+      - internal
     environment:
       - TZ=Europe/Budapest
       - ASPNETCORE_ENVIRONMENT=Docker
+    labels:
+      - "traefik.http.routers.quaze.rule=Host(`q2.jmrtn.dev`)"
+      #- "traefik.http.routers.quaze.entrypoints=websecure"
+      - "traefik.http.routers.quaze.tls.certresolver=leresolver"
+      - "traefik.docker.network=traefik"
   db:
     image: yobasystems/alpine-mariadb
     restart: always
     volumes:
       - db-data:/var/lib/mysql
+    networks:
+      - internal
     environment:
       - TZ=Europe/Budapest
       - MYSQL_DATABASE=quaze
@@ -33,3 +43,8 @@ services:
 volumes:
   db-data:
     driver: local
+
+networks:
+  traefik:
+    external: true
+  internal:

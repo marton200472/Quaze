@@ -10,7 +10,7 @@
     <label>Join a Quiz:</label>
     <InputText class="@("form-control " + (DoesntExist?"border border-danger":""))" placeholder="Quiz ID" @bind-Value="QuizId"/>
     @if(DoesntExist) {
-        <label class="text-danger">QUiz doesn't exist</label>
+        <label class="text-danger">Quiz doesn't exist</label>
     }
     <button class="btn btn-primary my-3" type="submit">Join</button>
 </EditForm>

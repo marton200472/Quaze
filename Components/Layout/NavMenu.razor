@@ -4,7 +4,7 @@
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Quaze</a>
-        <div>
+        <div class="auth-view">
             <AuthorizeView>
                 <Authorized>
                     <div class="dropdown">
@@ -23,11 +23,11 @@
                 </NotAuthorized>
             </AuthorizeView>
         </div>
-            <input type="checkbox" title="Navigation menu" class="navbar-toggler" style="position: unset;"/>
+            
     </div>
 </div>
 
-
+<input type="checkbox" title="Navigation menu" class="navbar-toggler"/>
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
@@ -44,10 +44,10 @@
     <AuthorizeView>
         <Authorized>
             <div class="nav-item px-3">
-            <NavLink class="nav-link" href="quizlist">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Quizzes
-            </NavLink>
-        </div>
+                <NavLink class="nav-link" href="quizlist">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Quizzes
+                </NavLink>
+            </div>
         </Authorized>
     </AuthorizeView>
         
@@ -57,7 +57,7 @@
 
 @code {
     [CascadingParameter]
-    public Task<AuthenticationState>? authenticationState {get;set;}
+    public required Task<AuthenticationState> authenticationState {get;set;}
     private string? UserName {get;set;} = "";
 
     protected override async Task OnInitializedAsync() {
