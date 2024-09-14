@@ -71,7 +71,10 @@
                         {
                             <p>Correct: </p>
                         }
-                        <p>@ans.Text</p>
+
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">@ans.Text</div>
+                        </div>
                         <p>The answer was chosen by @Session.Participants.Count(x => x.Answers.ContainsKey(Session.CurrentQuestion.Id) &&  x.Answers[Session.CurrentQuestion.Id].Contains(ans.Text))</p>
                     }
                 }
@@ -85,8 +88,10 @@
                     <h2>Other answers</h2>
                     foreach (var ans in Session.Participants.SelectMany(x=>x.Answers.ContainsKey(Session.CurrentQuestion.Id)?x.Answers[Session.CurrentQuestion.Id]:Enumerable.Empty<string>()).Distinct().Except(Session.CurrentQuestion.Choices.Select(x=>x.Text)))
                     {
-                        
-                        <p>@ans</p>
+                    // Ezt kell átalakítani, Belsõ divbe mehet amit meg akarsz jeleníteni, aria-valuenow="25" - jelenlegi állás, majd ezt kell megadni a hosszú querrys aránnyal, (aria-valuemin="0" aria-valuemax="100") - ezek defaultok
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">@ans</div>
+                        </div>
                         <p>The answer was chosen by @Session.Participants.Count(x => x.Answers.ContainsKey(Session.CurrentQuestion.Id) && x.Answers[Session.CurrentQuestion.Id].Contains(ans))</p>
                     }
                 }
