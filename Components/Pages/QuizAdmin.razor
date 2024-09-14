@@ -8,9 +8,6 @@
 
 @layout Quaze.Components.Layout.QuizLayout
 
-
-
-
 @if(State == LocalState.Error) {
     <p>Error</p>
 }
@@ -18,9 +15,8 @@
 @if(State == LocalState.Active) {
     <h1 class="text-center">@Session.Quiz.Title</h1>
     <hr />
-    @if(Session.State == SessionState.WaitStart) {
-        
 
+    @if(Session.State == SessionState.WaitStart) {
         <div class="row w-100">
             <div class="row w-50 mx-auto">
                     <h1 class="text-center">Session Id: @Session.Id</h1>
@@ -33,7 +29,6 @@
     @if(Session.State == SessionState.QuestionActive) {
         var question = Session.Quiz.Questions[Session.QuestionIndex];
         <div class="container d-flex flex-column align-items-center">
-            
             <div class="mb-2">
                 <div class="w-100 d-flex justify-content-between mb-2">
                     <h2 class="align-self-center m-0">@question.Title</h2>
@@ -42,8 +37,8 @@
                 @if(question.ImageGuid.HasValue) {
                     <img src="@($"api/image/{question.ImageGuid}")" class="w-100"/>
                 }
-                
                 <p class="p-3 w-100 border">@question.Description</p>
+                <p>Number of answers sent: @Session.NumberOfAnswersSent</p>
             </div>
             @if(State == LocalState.Active) {
                 if(question.QuestionType == Question.Type.Choice) {
@@ -58,7 +53,6 @@
                     </div>
                 }
             }
-            
                 <button @onclick="EndQuestion" type="button" class="btn btn-primary">End question</button>
         </div> 
     }
@@ -67,6 +61,7 @@
         <div class="container d-flex flex-column align-items-center">
             <div class="">
                 <h1>Answer(s):</h1>
+
                 @if (Session.CurrentQuestion.QuestionType == Question.Type.Choice)
                 {
                     foreach (var ans in Session.CurrentQuestion.Choices)
@@ -107,10 +102,8 @@
             </div>
             
         </div>
-        
     }
 }
-
 
 @code {
     [Parameter]
@@ -123,7 +116,6 @@
 
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
-
 
     private void EndQuestion() {
         Session.EndQuestion();

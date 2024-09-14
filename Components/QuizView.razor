@@ -98,14 +98,14 @@
                 }
                 Answer = "";
             }
-            
+
             InvokeAsync(StateHasChanged);
         };
         Session.TimerTick += (s, seconds) => {SecondsRemaining = seconds; InvokeAsync(StateHasChanged);};
 
         if(Session.CurrentQuestion.QuestionType == Question.Type.Choice) {
-                Choices = Session.CurrentQuestion.Choices.Select(x=>new Choice() {Text=x.Text, Valid=false}).ToArray();
-            }
+            Choices = Session.CurrentQuestion.Choices.Select(x=>new Choice() {Text=x.Text, Valid=false}).ToArray();
+        }
 
         if(LocalParticipant.Answers.ContainsKey(Session.CurrentQuestion.Id)) {
             State = LocalState.Sent;
@@ -120,6 +120,7 @@
             LocalParticipant.Answers[Session.CurrentQuestion.Id] = [Answer];
         }
 
+        Session.NotifySession(NotificationType.AnswerSubmitted);
         State = LocalState.Sent;
     }
 

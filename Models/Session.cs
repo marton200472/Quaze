@@ -13,7 +13,7 @@ public class Session
 
     public List<Participant> Participants { get; set; } = new();
 
-
+    public int NumberOfAnswersSent { get; private set; } = 0;
     public int TimeLeft { get; private set; } = 0;
     public int QuestionIndex { get; private set; } = 0;
     public SessionState State { get; private set; }
@@ -27,7 +27,6 @@ public class Session
         Id = id;
         Quiz = quiz;
     }
-
 
     public Quiz Quiz {get; private set;}
     private bool TimerEnabled = false;
@@ -97,6 +96,7 @@ public class Session
         {
             return;
         }
+        NumberOfAnswersSent = 0;
         NextState();
     }
 
@@ -107,6 +107,20 @@ public class Session
             Participants.Add(p);
         }
     }
+
+    private object NotificationLock = new();
+
+    public void NotifySession(NotificationType nt) {
+        lock (NotificationLock) {
+            if (nt == NotificationType.AnswerSubmitted) {
+                ++NumberOfAnswersSent;
+            }
+        }
+    }
+}
+
+public enum NotificationType {
+    AnswerSubmitted, UserLeftSession
 }
 
 public enum SessionState {
