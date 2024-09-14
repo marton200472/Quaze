@@ -5,6 +5,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
 @attribute [Authorize]
+@inherits LatexComponentBase
 
 @layout Quaze.Components.Layout.QuizLayout
 
@@ -135,6 +136,11 @@
 
         Session.StateChanged += (sender, state) => {InvokeAsync(StateHasChanged);};
         Session.TimerTick += (s, seconds) => {SecondsRemaining = seconds; InvokeAsync(StateHasChanged);};
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
     }
 
     enum LocalState {
