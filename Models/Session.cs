@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Runtime.Serialization;
 using System.Security.Cryptography;
 
@@ -11,9 +12,10 @@ public class Session
 
     public string OwnerId { get; private set; }
 
-    public List<Participant> Participants { get; set; } = new();
+    public ConcurrentBag<Participant> Participants { get; set; } = new();
 
-    public int NumberOfAnswersSent { get; private set; } = 0;
+    private int _numberOfAnswersSent = 0;
+    public int NumberOfAnswersSent => _numberOfAnswersSent;
     public int TimeLeft { get; private set; } = 0;
     public int QuestionIndex { get; private set; } = 0;
     public SessionState State { get; private set; }
@@ -58,6 +60,7 @@ public class Session
                 break;
             case SessionState.QuestionActive:
                 State = SessionState.QuestionEnd;
+                Interlocked.Exchange(ref _numberOfAnswersSent, 0);
                 break;
             case SessionState.QuestionEnd:
                 if (Quiz.Questions.Count>QuestionIndex+1)
@@ -98,27 +101,20 @@ public class Session
         {
             return;
         }
-        NumberOfAnswersSent = 0;
         NextState();
     }
 
-    private object ParticipantLock = new();
 
     public void AddParticipant(Participant p) {
-        lock(ParticipantLock) {
-            Participants.Add(p);
-        }
+        Participants.Add(p);
+        ShouldRefreshInformation?.Invoke();
     }
 
-    private object NotificationLock = new();
 
     public void NotifySession(NotificationType nt) {
-        lock (NotificationLock) {
-            if (nt == NotificationType.AnswerSubmitted) {
-                ++NumberOfAnswersSent;
-            }
+        if (nt == NotificationType.AnswerSubmitted) {
+            Interlocked.Increment(ref _numberOfAnswersSent);
         }
-
         ShouldRefreshInformation?.Invoke();
     }
 }
