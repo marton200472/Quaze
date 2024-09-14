@@ -125,7 +125,7 @@
         //try to join session
         var authState = await authenticationState;
 
-        var session = sessionService.Sessions.FirstOrDefault(x=>x.Id == sessionId);
+        var session = sessionService.Sessions.FirstOrDefault(x=>x.Id == sessionId && x.OwnerId == authState.User.Claims.First(y=>y.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value);
         if(session is null) {
             State = LocalState.Error;
             return;

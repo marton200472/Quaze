@@ -16,7 +16,7 @@ public class SessionService : BackgroundService
         this.dbFactory = dbFactory;
     }
 
-    public async Task<string> StartNewSessionAsync(Quiz quiz) {
+    public async Task<string> StartNewSessionAsync(Quiz quiz, User user) {
         string id = "";
         do
         {
@@ -24,14 +24,13 @@ public class SessionService : BackgroundService
         } while (Sessions.Any(x=>x.Id == id));
         using var db = await dbFactory.CreateDbContextAsync();
         quiz = await db.Quizes.Include(x=>x.Questions).FirstAsync(x=>x.Id == quiz.Id);
-        var session = new Session(id, quiz);
+        var session = new Session(id, user.Id, quiz);
         Sessions.Add(session);
         return id;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        Sessions.Add(new Session("1", new Quiz() {Title="Test quiz", Questions = new List<Question>(){ new Question() { Title = "Teszt", Description = "Teszt", TimeLimit = 20 } }}));
         while (true)
         {
             await Task.Delay(1000);

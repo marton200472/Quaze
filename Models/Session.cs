@@ -9,7 +9,7 @@ public class Session
 {
     public string Id { get; private set; }
 
-    public string OwnerId { get; set; }
+    public string OwnerId { get; private set; }
 
     public List<Participant> Participants { get; set; } = new();
 
@@ -23,9 +23,10 @@ public class Session
     public event EventHandler<SessionState> StateChanged;
     public event EventHandler<int> TimerTick;
 
-    public Session(string id, Quiz quiz) {
-        Id = id;
+    public Session(string sessionId, string userId, Quiz quiz) {
+        Id = sessionId;
         Quiz = quiz;
+        OwnerId = userId;
     }
 
     public Quiz Quiz {get; private set;}
