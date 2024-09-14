@@ -15,7 +15,7 @@
         <div class="mb-2">
             <div class="w-100 d-flex justify-content-between mb-2">
                 <h2 class="align-self-center m-0">@question.Title</h2>
-                <div class="rounded-pill text-light p-2" style="background-color: green; width: fit-content; float: right;">@TimeSpan.FromSeconds(SecondsRemaining).ToString()</div>
+                <Countdown Session="Session" />
             </div>
             @if(question.ImageGuid.HasValue) {
                 <img src="@($"api/image/{question.ImageGuid}")" class="w-100"/>
@@ -80,17 +80,10 @@
     private Choice[] Choices {get;set;} = Array.Empty<Choice>();
     private string Answer {get;set;} = "";
 
-    private int SecondsRemaining {get;set;} = 0;
-
     private LocalState State {get;set;}
 
-
-    protected override void OnParametersSet() {
-        SecondsRemaining = Session.TimeLeft;
-    }
-
     protected override void OnInitialized() {
-        Session.StateChanged += (sender, state) => {
+        Session.StateChanged += (state) => {
             if(state == SessionState.QuestionActive)
             {
                 State = LocalState.Active;
@@ -102,7 +95,8 @@
 
             InvokeAsync(StateHasChanged);
         };
-        Session.TimerTick += (s, seconds) => {SecondsRemaining = seconds; InvokeAsync(StateHasChanged);};
+
+        Session.ShouldRefreshInformation+=()=>InvokeAsync(StateHasChanged);
 
         if(Session.CurrentQuestion.QuestionType == Question.Type.Choice) {
             Choices = Session.CurrentQuestion.Choices.Select(x=>new Choice() {Text=x.Text, Valid=false}).ToArray();

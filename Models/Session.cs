@@ -20,8 +20,9 @@ public class Session
 
     public Question CurrentQuestion => Quiz.Questions[QuestionIndex];
 
-    public event EventHandler<SessionState> StateChanged;
-    public event EventHandler<int> TimerTick;
+    public event Action<SessionState> StateChanged;
+    public event Action<int> TimerTick;
+    public event Action ShouldRefreshInformation;
 
     public Session(string sessionId, string userId, Quiz quiz) {
         Id = sessionId;
@@ -41,7 +42,7 @@ public class Session
         if (TimeLeft > 0)
         {
             TimeLeft--;
-            TimerTick?.Invoke(this, TimeLeft);
+            TimerTick?.Invoke(TimeLeft);
             return;
         }
         
@@ -73,7 +74,7 @@ public class Session
 
         TimerEnabled = State == SessionState.QuestionActive;
 
-        StateChanged?.Invoke(this, State);
+        StateChanged?.Invoke(State);
     }
 
     public void StartQuiz() {
@@ -117,6 +118,8 @@ public class Session
                 ++NumberOfAnswersSent;
             }
         }
+
+        ShouldRefreshInformation?.Invoke();
     }
 }
 

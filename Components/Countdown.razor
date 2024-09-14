@@ -1,0 +1,24 @@
+@implements IDisposable
+
+<div class="rounded-pill text-light p-2" style="background-color: green; width: fit-content; float: right;">@TimeSpan.FromSeconds(SecondsRemaining).ToString()</div>
+
+@code {
+    private int SecondsRemaining {get;set;}
+
+    [Parameter]
+    public required Session Session {get;set;}
+
+    protected override void OnInitialized()
+    {
+        Session.TimerTick += OnTimerTick;
+    }
+
+    private void OnTimerTick(int secondsRemaining) {
+        SecondsRemaining = secondsRemaining;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() {
+        Session.TimerTick-=OnTimerTick;
+    }
+ }
