@@ -22,6 +22,8 @@ public class Session
 
     public Question CurrentQuestion => Quiz.Questions[QuestionIndex];
 
+    public int ParticipantCount => Participants.Count;
+
     public event Action<SessionState> StateChanged;
     public event Action<int> TimerTick;
     public event Action ShouldRefreshInformation;

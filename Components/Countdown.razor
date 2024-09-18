@@ -1,6 +1,6 @@
 @implements IDisposable
 
-<div class="rounded-pill text-light p-2" style="background-color: green; width: fit-content; float: right;">@TimeSpan.FromSeconds(SecondsRemaining).ToString()</div>
+<div class="rounded-pill text-light py-1 px-4" style="background-color: green; width: fit-content; float: right; font-weight: bold; font-size: xx-large;">@TimeSpan.FromSeconds(SecondsRemaining).ToString()</div>
 
 @code {
     private int SecondsRemaining {get;set;}
@@ -11,6 +11,7 @@
     protected override void OnInitialized()
     {
         Session.TimerTick += OnTimerTick;
+        SecondsRemaining = Session.TimeLeft;
     }
 
     private void OnTimerTick(int secondsRemaining) {

@@ -14,8 +14,7 @@
 }
 
 @if(State == LocalState.Active) {
-    <h1 class="text-center">@Session.Quiz.Title</h1>
-    <hr />
+    
 
     @if(Session.State == SessionState.WaitStart) {
         <div class="row w-100">
@@ -27,55 +26,67 @@
         </div>
     }
 
-    @if(Session.State == SessionState.QuestionActive) {
+    @if(Session.State == SessionState.QuestionActive || Session.State == SessionState.QuestionEnd) {
         var question = Session.Quiz.Questions[Session.QuestionIndex];
-        <div class="container d-flex flex-column align-items-center">
-            <div class="mb-2">
-                <div class="w-100 d-flex justify-content-between mb-2">
+        <div class="container d-flex flex-column align-items-center py-3">
+            <div class="mb-2 w-100 d-flex flex-column">
+                <div class="w-100 d-flex justify-content-between mb-5">
                     <h2 class="align-self-center m-0">@question.Title</h2>
-                    <Countdown Session="Session" />
+                    @if(Session.State == SessionState.QuestionActive) {
+                        <Countdown Session="Session" />
+                    }
+                    
                 </div>
                 @if(question.ImageGuid.HasValue) {
-                    <img src="@($"api/image/{question.ImageGuid}")" class="w-100"/>
+                    <img src="@($"api/image/{question.ImageGuid}")" class="mb-2" style="display: block; max-height: 30vh; max-width: 100%; object-fit: contain;"/>
                 }
-                <p class="p-3 w-100 border">@question.Description</p>
-                <p>Number of answers sent: @Session.NumberOfAnswersSent</p>
+                @if(!string.IsNullOrWhiteSpace(question.Description)) {
+                    <p class="p-3 w-100 border">@question.Description</p>
+                }
+                
+                
             </div>
-            @if(State == LocalState.Active) {
-                if(question.QuestionType == Question.Type.Choice) {
+            @if(Session.State == SessionState.QuestionActive) {
+                @if(question.QuestionType == Question.Type.Choice) {
                     int index = 1;
                     <div class="options w-100 mb-3">
-                        @foreach(var c in Session.CurrentQuestion.Choices) {
-                            <label class="quiz-check">
+                        @foreach(var c in Session.CurrentQuestion.Choices ?? Enumerable.Empty<Choice>()) {
+                            <div class="quiz-check position-relative py-2 px-3 my-2" style="z-index: 1;">
                                 <span>@c.Text</span>
-                            </label>
+                            </div>
                             index++;
                         }
                     </div>
                 }
-            }
+                <p>Answers: @Session.NumberOfAnswersSent/@Session.ParticipantCount</p>
                 <button @onclick="EndQuestion" type="button" class="btn btn-primary">End question</button>
-        </div> 
-    }
-
-    @if(Session.State == SessionState.QuestionEnd) {
-        <div class="container d-flex flex-column align-items-center">
-            <div class="">
-                <h1>Answer(s):</h1>
-
+            }
+            else {
                 @if (Session.CurrentQuestion.QuestionType == Question.Type.Choice)
                 {
                     foreach (var ans in Session.CurrentQuestion.Choices)
                     {
-                        @if (ans.Valid)
-                        {
-                            <p>Correct: </p>
-                        }
-
-                        <div class="progress">
+                        int chosenBy = Session.Participants.Count(x => x.Answers.ContainsKey(Session.CurrentQuestion.Id) &&  x.Answers[Session.CurrentQuestion.Id].Contains(ans.Text));
+                        double percentage = chosenBy == 0?0:Math.Round((double)chosenBy / Session.ParticipantCount * 100,1);
+                        
+                        <div class="quiz-check @(ans.Valid?"correct":"incorrect")" style="z-index: 1;">
+                            <div style="width: @percentage%; height: 100%; background-color: rgb(255,100,80); border-radius: 7px @(percentage < 100?"0 0":"7px 7px") 7px; position: absolute; z-index: 0;"></div>
+                            <div class="w-100 my-2 d-flex" style="justify-content:space-between; position: relative; background: linear-gradient(to right, black, black @percentage%, black @(percentage+0.1)%, black); color: transparent; background-clip: text; z-index: 10;">
+                                <span style="height: 100%; margin-left: 10px;">@ans.Text</span>
+                                <span class="d-block mx-2">
+                                    @if(ans.Valid) {
+                                        <i class="bi bi-check-lg"></i>
+                                    }
+                                    @chosenBy (@percentage%)
+                                </span>
+                            </div> 
+                        </div>
+                        
+                        @*<div class="progress">
                             <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">@ans.Text</div>
                         </div>
                         <p>The answer was chosen by @Session.Participants.Count(x => x.Answers.ContainsKey(Session.CurrentQuestion.Id) &&  x.Answers[Session.CurrentQuestion.Id].Contains(ans.Text))</p>
+                        *@
                     }
                 }
                 else
@@ -88,17 +99,19 @@
                     <h2>Other answers</h2>
                     foreach (var ans in Session.Participants.SelectMany(x=>x.Answers.ContainsKey(Session.CurrentQuestion.Id)?x.Answers[Session.CurrentQuestion.Id]:Enumerable.Empty<string>()).Distinct().Except(Session.CurrentQuestion.Choices.Select(x=>x.Text)))
                     {
-                    // Ezt kell átalakítani, Belsõ divbe mehet amit meg akarsz jeleníteni, aria-valuenow="25" - jelenlegi állás, majd ezt kell megadni a hosszú querrys aránnyal, (aria-valuemin="0" aria-valuemax="100") - ezek defaultok
+                    // Ezt kell ï¿½talakï¿½tani, Belsï¿½ divbe mehet amit meg akarsz jelenï¿½teni, aria-valuenow="25" - jelenlegi ï¿½llï¿½s, majd ezt kell megadni a hosszï¿½ querrys arï¿½nnyal, (aria-valuemin="0" aria-valuemax="100") - ezek defaultok
                         <div class="progress">
                             <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">@ans</div>
                         </div>
                         <p>The answer was chosen by @Session.Participants.Count(x => x.Answers.ContainsKey(Session.CurrentQuestion.Id) && x.Answers[Session.CurrentQuestion.Id].Contains(ans))</p>
                     }
                 }
-            </div>
-        </div>
-        <button @onclick="Session.NextQuestion">Next question</button>
+                <button @onclick="Session.NextQuestion">Next question</button>
+            }
+            
+        </div> 
     }
+
 
     @if(Session.State == SessionState.End) {
         <div class="row w-100">

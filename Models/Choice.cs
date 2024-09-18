@@ -5,4 +5,5 @@ namespace Quaze.Models;
     {
         public string Text { get; set; } = string.Empty;
         public bool Valid { get; set; }
+        public Guid? ImageGuid { get; set; }
     }
