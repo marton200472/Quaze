@@ -36,7 +36,7 @@ public class LoginModel : PageModel
             return Page();   
         }
         var user = await userManager.FindByNameAsync(Username);
-        if (user is null || !(await signInManager.PasswordSignInAsync(user, Password,false, false)).Succeeded)
+        if (user is null || !(await signInManager.PasswordSignInAsync(user, Password,true, false)).Succeeded)
         {
             Errors = ["User not found."];
             return Page();
