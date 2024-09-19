@@ -66,10 +66,10 @@
                     {
                         int chosenBy = Session.Participants.Count(x => x.Answers.ContainsKey(Session.CurrentQuestion.Id) &&  x.Answers[Session.CurrentQuestion.Id].Contains(ans.Text));
                         double percentage = chosenBy == 0?0:Math.Round((double)chosenBy / Session.ParticipantCount * 100,1);
-                        
-                        <div class="quiz-option @(ans.Valid?"correct":"incorrect")">
-                            <div data-progress="@percentage%" class="quiz-option-progress @(percentage == 100 ? "full":"")"></div>
-                            <div class="w-100 my-2 d-flex quiz-option-label">
+                        <p class="attrtest" style="--progress: 50%;"></p>
+                        <div class="quiz-option @(ans.Valid?"correct":"")">
+                            <div style="--progress: @percentage%;" class="quiz-option-progress @(percentage == 100 ? "full":"")"></div>
+                            <div style="--progress: @percentage%;" class="w-100 my-2 d-flex quiz-option-label">
                                 <span style="height: 100%; margin-left: 10px;">@ans.Text</span>
                                 <span class="d-block mx-2">
                                     @if(ans.Valid) {

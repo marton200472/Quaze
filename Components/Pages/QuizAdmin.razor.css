@@ -7,15 +7,13 @@
     position: relative;
     background-color: white;
     width: 100%;
+    border: 3px solid red;
 }
 
 .quiz-option.correct {
     border: 5px solid green;
 }
 
-.quiz-option.incorrect {
-    border: 3px solid red;
-}
 
 .quiz-image {
     display: block;
@@ -25,13 +23,17 @@
 }
 
 .quiz-option-progress {
-    width: attr(data-progress) "%";
+    width: var(--progress);
     height: 100%;
     background-color: rgb(255,100,80);
     border-top-left-radius: 7px;
     border-bottom-left-radius: 7px;
     position: absolute;
     z-index: 0;
+}
+
+.quiz-option.correct .quiz-option-progress {
+    background-color: hsl(127, 80%, 66%);
 }
 
 .quiz-option-progress.full {
@@ -42,10 +44,14 @@
 .quiz-option-label {
     justify-content:space-between;
     position: relative;
-    background: linear-gradient(to right, black, black attr(data-progress) "%", black calc(attr(data-progress+0.1)) "%", black);
+    background: linear-gradient(to right, black, black var(--progress), black calc(var(--progress) + 0.01%), black);
     color: transparent;
-    background-clip: text;
+    background-clip: text !important;
     z-index: 10;
+}
+
+.quiz-option.quiz-option.correct .quiz-option-label {
+    background: linear-gradient(to right, black, black var(--progress), black calc(var(--progress) + 0.01%), black);
 }
 
  p, span, a {
