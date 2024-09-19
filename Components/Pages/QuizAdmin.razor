@@ -38,7 +38,7 @@
                     
                 </div>
                 @if(question.ImageGuid.HasValue) {
-                    <img src="@($"api/image/{question.ImageGuid}")" class="mb-2" style="display: block; max-height: 30vh; max-width: 100%; object-fit: contain;"/>
+                    <img src="@($"api/image/{question.ImageGuid}")" class="mb-2 quiz-image" style=""/>
                 }
                 @if(!string.IsNullOrWhiteSpace(question.Description)) {
                     <p class="p-3 w-100 border">@question.Description</p>
@@ -48,13 +48,11 @@
             </div>
             @if(Session.State == SessionState.QuestionActive) {
                 @if(question.QuestionType == Question.Type.Choice) {
-                    int index = 1;
                     <div class="options w-100 mb-3">
                         @foreach(var c in Session.CurrentQuestion.Choices ?? Enumerable.Empty<Choice>()) {
-                            <div class="quiz-check position-relative py-2 px-3 my-2" style="z-index: 1;">
+                            <div class="quiz-check position-relative py-2 px-3 my-2">
                                 <span>@c.Text</span>
                             </div>
-                            index++;
                         }
                     </div>
                 }
@@ -69,9 +67,9 @@
                         int chosenBy = Session.Participants.Count(x => x.Answers.ContainsKey(Session.CurrentQuestion.Id) &&  x.Answers[Session.CurrentQuestion.Id].Contains(ans.Text));
                         double percentage = chosenBy == 0?0:Math.Round((double)chosenBy / Session.ParticipantCount * 100,1);
                         
-                        <div class="quiz-check @(ans.Valid?"correct":"incorrect")" style="z-index: 1;">
-                            <div style="width: @percentage%; height: 100%; background-color: rgb(255,100,80); border-radius: 7px @(percentage < 100?"0 0":"7px 7px") 7px; position: absolute; z-index: 0;"></div>
-                            <div class="w-100 my-2 d-flex" style="justify-content:space-between; position: relative; background: linear-gradient(to right, black, black @percentage%, black @(percentage+0.1)%, black); color: transparent; background-clip: text; z-index: 10;">
+                        <div class="quiz-option @(ans.Valid?"correct":"incorrect")">
+                            <div data-progress="@percentage%" class="quiz-option-progress @(percentage == 100 ? "full":"")"></div>
+                            <div class="w-100 my-2 d-flex quiz-option-label">
                                 <span style="height: 100%; margin-left: 10px;">@ans.Text</span>
                                 <span class="d-block mx-2">
                                     @if(ans.Valid) {

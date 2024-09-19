@@ -1,4 +1,4 @@
-.quiz-check {
+.quiz-option {
     background-color: lightgray;
     user-select: none;
     border: 1px solid black;
@@ -9,14 +9,46 @@
     width: 100%;
 }
 
-.quiz-check.correct {
+.quiz-option.correct {
     border: 5px solid green;
 }
 
-.quiz-check.incorrect {
+.quiz-option.incorrect {
     border: 3px solid red;
+}
+
+.quiz-image {
+    display: block;
+    max-height: 30vh;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.quiz-option-progress {
+    width: attr(data-progress) "%";
+    height: 100%;
+    background-color: rgb(255,100,80);
+    border-top-left-radius: 7px;
+    border-bottom-left-radius: 7px;
+    position: absolute;
+    z-index: 0;
+}
+
+.quiz-option-progress.full {
+    border-top-right-radius: 7px;
+    border-bottom-right-radius: 7px;
+}
+
+.quiz-option-label {
+    justify-content:space-between;
+    position: relative;
+    background: linear-gradient(to right, black, black attr(data-progress) "%", black calc(attr(data-progress+0.1)) "%", black);
+    color: transparent;
+    background-clip: text;
+    z-index: 10;
 }
 
  p, span, a {
     font-size: 1.5rem;
 }
+

@@ -30,7 +30,7 @@ public class LoginModel : PageModel
 
     public async Task<IActionResult> OnPostAsync([FromQuery]string returnUrl) {
 
-        if (Username is null || Password is null)
+        if (Username is "" || Password is "")
         {
             Errors = ["Username or password was empty."];
             return Page();   
