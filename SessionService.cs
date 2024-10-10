@@ -33,7 +33,7 @@ public class SessionService : BackgroundService
     {
         while (true)
         {
-            await Task.Delay(1000);
+            await Task.Delay(1000, stoppingToken);
             foreach (var s in Sessions)
             {
                 s.OnTimerTick();
