@@ -7,17 +7,23 @@
     position: relative;
     background-color: white;
     width: 100%;
-    border: 3px solid red;
+    font-size: 1.5rem;
 }
 
 .quiz-option.correct {
     border: 5px solid green;
 }
 
+.quiz-option.incorrect {
+    border: 3px solid red;
+}
+
 
 .quiz-image {
     display: block;
     max-height: 30vh;
+    margin-left: auto;
+    margin-right: auto;
     max-width: 100%;
     object-fit: contain;
 }
@@ -54,7 +60,14 @@
     background: linear-gradient(to right, black, black var(--progress), black calc(var(--progress) + 0.01%), black);
 }
 
- p, span, a {
-    font-size: 1.5rem;
+p, a {
+    font-size: 2rem;
 }
 
+h1 {
+    font-size: 3.5rem;
+}
+
+.session-id {
+    font-size: 10rem;
+}

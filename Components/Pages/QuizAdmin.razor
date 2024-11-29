@@ -1,5 +1,6 @@
 @page "/admin/quiz/{sessionId}"
 @inject SessionService sessionService
+@inject IJSRuntime jsR
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
@@ -17,29 +18,46 @@
     
 
     @if(Session.State == SessionState.WaitStart) {
-        <div class="row w-100">
-            <div class="row w-50 mx-auto">
-                    <h1 class="text-center">Session Id: @Session.Id</h1>
-                    <button @onclick="Session.StartQuiz">Start Quiz</button>
-            </div>
-            
+        <div class="d-flex flex-column w-100 h-100 justify-content-center py-3">
+            <h1 class="text-center">Join at <span class="fst-italic">quaze.jmrtn.dev</span></h1>
+            <h1 class="text-center session-id">@Session.Id</h1>
+            <div class="flex-fill w-75 mx-auto mb-5" id="user-cloud"></div>
+            <button class="w-25 mx-auto btn btn-primary" @onclick="Session.StartQuiz">Start Quiz</button>
         </div>
+
+        <SectionContent SectionName="Scripts">
+            <script src="js/wordcloud2.js"></script>
+            <script>
+                function renderUserWordCloud(users) {
+                    let l = [];
+                    for(let i = 0; i < users.length; i++) {
+                        l.push([users[i],30+Math.random()*60]);
+                    }
+                    WordCloud(document.getElementById('user-cloud'), { list: l, rotateRatio: 0.9, color: "random-dark"});
+                }
+                
+            </script>
+        </SectionContent>
     }
 
     @if(Session.State == SessionState.QuestionActive || Session.State == SessionState.QuestionEnd) {
         var question = Session.Quiz.Questions[Session.QuestionIndex];
-        <div class="container d-flex flex-column align-items-center py-3">
-            <div class="mb-2 w-100 d-flex flex-column">
-                <div class="w-100 d-flex justify-content-between mb-5">
-                    <h2 class="align-self-center m-0">@question.Title</h2>
+        <div class="container d-flex flex-column align-items-center py-3 h-100">
+            <div class="mb-2 w-100 d-flex flex-column flex-grow" style="justify-content: space-between;">
+                @if(question.ImageGuid.HasValue) {
+                    <div class="flex-grow">
+                        <img src="@($"api/image/{question.ImageGuid}")" class="mb-2 quiz-image"/>
+                    </div>
+                    
+                }
+                <div class="w-100 d-flex justify-content-between mb-2">
+                    <h1 class="align-self-center m-0">@question.Title</h1>
                     @if(Session.State == SessionState.QuestionActive) {
                         <Countdown Session="Session" />
                     }
                     
                 </div>
-                @if(question.ImageGuid.HasValue) {
-                    <img src="@($"api/image/{question.ImageGuid}")" class="mb-2 quiz-image" style=""/>
-                }
+                
                 @if(!string.IsNullOrWhiteSpace(question.Description)) {
                     <p class="p-3 w-100 border">@question.Description</p>
                 }
@@ -50,14 +68,14 @@
                 @if(question.QuestionType == Question.Type.Choice) {
                     <div class="options w-100 mb-3">
                         @foreach(var c in Session.CurrentQuestion.Choices ?? Enumerable.Empty<Choice>()) {
-                            <div class="quiz-check position-relative py-2 px-3 my-2">
-                                <span>@c.Text</span>
+                            <div class="quiz-option position-relative py-2 px-3 my-2">
+                                @c.Text
                             </div>
                         }
                     </div>
                 }
                 <p>Answers: @Session.NumberOfAnswersSent/@Session.ParticipantCount</p>
-                <button @onclick="EndQuestion" type="button" class="btn btn-primary">End question</button>
+                <button @onclick="Session.EndQuestion" type="button" class="btn btn-primary">End question</button>
             }
             else {
                 @if (Session.CurrentQuestion.QuestionType == Question.Type.Choice)
@@ -67,7 +85,7 @@
                         int chosenBy = Session.Participants.Count(x => x.Answers.ContainsKey(Session.CurrentQuestion.Id) &&  x.Answers[Session.CurrentQuestion.Id].Contains(ans.Text));
                         double percentage = chosenBy == 0?0:Math.Round((double)chosenBy / Session.ParticipantCount * 100,1);
                         <p class="attrtest" style="--progress: 50%;"></p>
-                        <div class="quiz-option @(ans.Valid?"correct":"")">
+                        <div class="quiz-option @(ans.Valid?"correct":"incorrect")">
                             <div style="--progress: @percentage%;" class="quiz-option-progress @(percentage == 100 ? "full":"")"></div>
                             <div style="--progress: @percentage%;" class="w-100 my-2 d-flex quiz-option-label">
                                 <span style="height: 100%; margin-left: 10px;">@ans.Text</span>
@@ -104,7 +122,8 @@
                         <p>The answer was chosen by @Session.Participants.Count(x => x.Answers.ContainsKey(Session.CurrentQuestion.Id) && x.Answers[Session.CurrentQuestion.Id].Contains(ans))</p>
                     }
                 }
-                <button @onclick="Session.NextQuestion">Next question</button>
+                <p>Answers: @Session.NumberOfAnswersSent/@Session.ParticipantCount</p>
+                <button @onclick="Session.NextQuestion" type="button" class="btn btn-primary">Next question</button>
             }
             
         </div> 
@@ -134,10 +153,6 @@
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
 
-    private void EndQuestion() {
-        Session.EndQuestion();
-    }
-
     protected override async Task OnInitializedAsync() {
         //try to join session
         var authState = await authenticationState;
@@ -154,10 +169,24 @@
 
         Session.ShouldRefreshInformation+=()=>InvokeAsync(StateHasChanged);
         //Session.TimerTick += (s, seconds) => {SecondsRemaining = seconds; InvokeAsync(StateHasChanged);};
+
+        
     }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        //bad solution
+        bool exit = false;
+        while (!exit) {
+            try {
+                if(Session?.State == SessionState.WaitStart)
+                    await jsR.InvokeVoidAsync("renderUserWordCloud", [Session.Participants.Select(x=>x.Name).ToArray()]);
+                exit = true;
+            }
+            catch (JSException) {
+                await Task.Delay(50);
+            }
+        }
         base.OnAfterRender(firstRender);
     }
 

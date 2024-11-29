@@ -1,13 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Quaze.Data;
 using Quaze.Models;
+using System.Collections.Concurrent;
 using System.Security.Cryptography;
 
 namespace Quaze;
 
 public class SessionService : BackgroundService
 {
-    public List<Session> Sessions { get; set; } = new();
+    public ConcurrentBag<Session> Sessions { get; set; } = new();
 
     private readonly IDbContextFactory<QuazeDbContext> dbFactory;
 

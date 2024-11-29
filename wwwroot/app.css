@@ -6,6 +6,10 @@ a, .btn-link {
     color: #006bb7;
 }
 
+html, body {
+    height: 100%;
+}
+
 .btn-primary {
     color: #fff;
     background-color: #1b6ec2;
