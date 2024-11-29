@@ -83,6 +83,17 @@
 
     private LocalState State {get;set;}
 
+    private bool WasAnswerCorrect() {
+        if(Session.CurrentQuestion.QuestionType == Question.Type.Choice) {
+            return Session.CurrentQuestion.Choices.Where(x=>x.Valid).Select(x=>x.Text).Except(LocalParticipant.Answers[Session.CurrentQuestion.Id]).Count() == 0 && !Session.CurrentQuestion.Choices.Where(x=>!x.Valid).Select(x=>x.Text).Any(x=>LocalParticipant.Answers[Session.CurrentQuestion.Id].Contains(x));
+            
+        }
+        else {
+            return Session.CurrentQuestion.Choices.Select(x=>x.Text).Contains(LocalParticipant.Answers[Session.CurrentQuestion.Id][0]);
+            
+        }
+    }
+
     protected override void OnInitialized() {
         Session.StateChanged += (state) => {
             if(state == SessionState.QuestionActive)
@@ -116,7 +127,10 @@
             LocalParticipant.Answers[Session.CurrentQuestion.Id] = [Answer];
         }
 
-        LocalParticipant.Points += Session.CurrentQuestion.Choices.Select(x => x.Text).Contains(LocalParticipant.Answers[Session.CurrentQuestion.Id][0]) ? (int)(1000 * ((double)Session.TimeLeft / Session.CurrentQuestion.TimeLimit)) : 0;
+        if (WasAnswerCorrect()) {
+            LocalParticipant.Points +=  (int)(1000 * ((double)Session.TimeLeft / Session.CurrentQuestion.TimeLimit));
+        }
+        
 
         Session.NotifySession(NotificationType.AnswerSubmitted);
         State = LocalState.Sent;
